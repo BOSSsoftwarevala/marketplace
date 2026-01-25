@@ -109,7 +109,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4 relative z-[2147483647]">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
@@ -119,7 +119,7 @@ const Auth = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative w-full max-w-md"
+        className="relative w-full max-w-md z-[2147483647]"
       >
         {/* Logo */}
         <div className="text-center mb-8">
@@ -143,7 +143,7 @@ const Auth = () => {
         </div>
 
         {/* Auth Card */}
-        <div className="glass-panel p-8 rounded-2xl border border-border/50">
+        <div className="glass-panel p-8 rounded-2xl border border-border/50 relative z-[2147483647]">
           {/* Toggle */}
           <div className="flex bg-muted/50 rounded-lg p-1 mb-6">
             <button
@@ -266,7 +266,7 @@ const Auth = () => {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold py-5 mt-6"
+              className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold py-5 mt-6 relative z-[2147483647]"
             >
               {loading ? (
                 <div className="flex items-center gap-2">
