@@ -337,7 +337,8 @@ const App = () => (
         <AnimationProvider>
           <TooltipProvider>
             <DomainProtection>
-              <SourceCodeProtection enabled={!import.meta.env.DEV}>
+              {/* Disabled to prevent global interaction blocking (login/buttons must always work) */}
+              <SourceCodeProtection enabled={false}>
                 <Toaster />
                 <Sonner />
                 <BrowserRouter>
