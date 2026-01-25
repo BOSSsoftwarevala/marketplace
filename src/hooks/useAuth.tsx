@@ -31,6 +31,28 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Emergency safety: never let login hang forever due to network/RPC stalls.
+function withTimeout<T>(promiseLike: PromiseLike<T>, ms: number, label: string): Promise<T> {
+  // supabase-js Postgrest builders are PromiseLike (thenable) but not full Promises.
+  const promise: Promise<T> = Promise.resolve(promiseLike as any);
+
+  return new Promise<T>((resolve, reject) => {
+    const t = window.setTimeout(() => {
+      reject(new Error(`Timeout: ${label}`));
+    }, ms);
+
+    promise
+      .then((v) => {
+        window.clearTimeout(t);
+        resolve(v);
+      })
+      .catch((e) => {
+        window.clearTimeout(t);
+        reject(e);
+      });
+  });
+}
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -278,10 +300,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     pendingSignInRef.current = true;
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { data, error } = await withTimeout(
+        supabase.auth.signInWithPassword({
+          email,
+          password,
+        }),
+        12000,
+        'signInWithPassword'
+      );
 
       if (error) throw error;
 
@@ -291,9 +317,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
           // Use SECURITY DEFINER function - reliable even if RLS blocks direct table reads
           const [bossResult, masterResult, ceoResult] = await Promise.all([
-            supabase.rpc('has_role', { _user_id: data.user.id, _role: 'boss_owner' }),
-            supabase.rpc('has_role', { _user_id: data.user.id, _role: 'master' }),
-            supabase.rpc('has_role', { _user_id: data.user.id, _role: 'ceo' }),
+            withTimeout(
+              supabase.rpc('has_role', { _user_id: data.user.id, _role: 'boss_owner' }),
+              4000,
+              'rpc:has_role(boss_owner)'
+            ).catch(() => ({ data: false } as any)),
+            withTimeout(
+              supabase.rpc('has_role', { _user_id: data.user.id, _role: 'master' }),
+              4000,
+              'rpc:has_role(master)'
+            ).catch(() => ({ data: false } as any)),
+            withTimeout(
+              supabase.rpc('has_role', { _user_id: data.user.id, _role: 'ceo' }),
+              4000,
+              'rpc:has_role(ceo)'
+            ).catch(() => ({ data: false } as any)),
           ]);
 
           isBossOwner =
@@ -310,12 +348,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const ipAddress = 'client-side';
 
           // Verify login is allowed via whitelist check
-          const { data: verifyResult, error: verifyError } = await supabase.rpc('verify_login_allowed', {
-            p_user_id: data.user.id,
-            p_email: email,
-            p_ip_address: ipAddress,
-            p_device_fingerprint: fingerprint,
-            p_user_agent: navigator.userAgent,
+          const { data: verifyResult, error: verifyError } = await withTimeout(
+            supabase.rpc('verify_login_allowed', {
+              p_user_id: data.user.id,
+              p_email: email,
+              p_ip_address: ipAddress,
+              p_device_fingerprint: fingerprint,
+              p_user_agent: navigator.userAgent,
+            }),
+            5000,
+            'rpc:verify_login_allowed'
+          ).catch((timeoutErr) => {
+            // Fail-open: if the security RPC stalls, don't brick login.
+            console.warn('[Auth] verify_login_allowed timed out; allowing login', timeoutErr);
+            return { data: { allowed: true, reason: 'timeout_fail_open' }, error: null } as any;
           });
 
           if (verifyError) {
@@ -332,8 +378,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         // Clear force logout flag on successful sign in BEFORE role/status fetch
-        await clearForceLogout(data.user.id);
-        await fetchUserRoleAndStatus(data.user.id);
+        await withTimeout(clearForceLogout(data.user.id), 4000, 'rpc:clear_force_logout').catch(() => {
+          // Silent fail-open
+        });
+        await withTimeout(fetchUserRoleAndStatus(data.user.id), 6000, 'fetchUserRoleAndStatus').catch(() => {
+          // Silent fail-open
+        });
       }
 
       return { error: null };
