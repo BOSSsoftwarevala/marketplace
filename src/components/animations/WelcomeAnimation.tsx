@@ -48,10 +48,10 @@ const WelcomeAnimation = ({ isVisible, onComplete, userName = 'User', userRole =
       {isVisible && (
         <motion.div
           initial={{ opacity: 0, pointerEvents: 'none' as const }}
-          animate={{ opacity: 1, pointerEvents: 'auto' as const }}
+          animate={{ opacity: 1, pointerEvents: 'none' as const }}
           exit={{ opacity: 0, pointerEvents: 'none' as const }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[hsl(220,30%,3%)]"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[hsl(220,30%,3%)] pointer-events-none"
         >
           {/* Background Grid */}
           <div className="absolute inset-0 opacity-20">
