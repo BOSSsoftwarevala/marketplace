@@ -30,7 +30,7 @@ export const AnimationProvider = ({ children }: { children: ReactNode }) => {
   // If an animation stays visible too long, force-close it.
   useEffect(() => {
     if (!animation.type) return;
-    const MAX_OVERLAY_MS = 6000; // Force hide after 6 seconds
+    const MAX_OVERLAY_MS = 2000; // Force hide after 2 seconds - NEVER block login
     const t = window.setTimeout(() => {
       console.warn('[Animation] Force-hiding stuck animation overlay');
       hideAnimation();
