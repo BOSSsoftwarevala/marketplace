@@ -23,11 +23,9 @@ export function SecurityProvider({ children }: { children: ReactNode }) {
   const [sessionStarted, setSessionStarted] = useState<Date | null>(null);
   const [isTrustedDevice, setIsTrustedDevice] = useState(false);
 
-  // Use force logout check
-  useForceLogoutCheck();
-  
-  // Use session timeout (30 minutes default)
-  useSessionTimeout({ timeoutMinutes: 30, warningMinutes: 5 });
+  // SECURITY DISABLED: All hooks disabled for login fix
+  // useForceLogoutCheck();
+  // useSessionTimeout({ timeoutMinutes: 30, warningMinutes: 5 });
 
   // Generate device fingerprint on mount
   useEffect(() => {
@@ -119,41 +117,35 @@ export function SecurityProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, [deviceFingerprint]);
 
-  // Block copy/dev tools in production
-  useEffect(() => {
-    if (import.meta.env.PROD) {
-      // Block context menu on sensitive elements
-      const handleContextMenu = (e: MouseEvent) => {
-        const target = e.target as HTMLElement;
-        if (target.closest('[data-secure]')) {
-          e.preventDefault();
-          toast.warning('This action is not allowed for security reasons');
-          logSecurityEvent('context_menu_blocked', { element: target.tagName });
-        }
-      };
-
-      // Block keyboard shortcuts
-      const handleKeydown = (e: KeyboardEvent) => {
-        // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-        if (
-          e.key === 'F12' ||
-          (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key)) ||
-          (e.ctrlKey && e.key === 'u')
-        ) {
-          e.preventDefault();
-          logSecurityEvent('dev_tools_blocked', { key: e.key });
-        }
-      };
-
-      document.addEventListener('contextmenu', handleContextMenu);
-      document.addEventListener('keydown', handleKeydown);
-
-      return () => {
-        document.removeEventListener('contextmenu', handleContextMenu);
-        document.removeEventListener('keydown', handleKeydown);
-      };
-    }
-  }, []);
+  // SECURITY DISABLED: All event blockers removed for login fix
+  // useEffect(() => {
+  //   if (import.meta.env.PROD) {
+  //     const handleContextMenu = (e: MouseEvent) => {
+  //       const target = e.target as HTMLElement;
+  //       if (target.closest('[data-secure]')) {
+  //         e.preventDefault();
+  //         toast.warning('This action is not allowed for security reasons');
+  //         logSecurityEvent('context_menu_blocked', { element: target.tagName });
+  //       }
+  //     };
+  //     const handleKeydown = (e: KeyboardEvent) => {
+  //       if (
+  //         e.key === 'F12' ||
+  //         (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key)) ||
+  //         (e.ctrlKey && e.key === 'u')
+  //       ) {
+  //         e.preventDefault();
+  //         logSecurityEvent('dev_tools_blocked', { key: e.key });
+  //       }
+  //     };
+  //     document.addEventListener('contextmenu', handleContextMenu);
+  //     document.addEventListener('keydown', handleKeydown);
+  //     return () => {
+  //       document.removeEventListener('contextmenu', handleContextMenu);
+  //       document.removeEventListener('keydown', handleKeydown);
+  //     };
+  //   }
+  // }, []);
 
   return (
     <SecurityContext.Provider value={{
