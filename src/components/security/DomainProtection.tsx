@@ -17,60 +17,48 @@ interface DomainProtectionProps {
 }
 
 const DomainProtection: React.FC<DomainProtectionProps> = ({ children }) => {
-  const [isAllowed, setIsAllowed] = useState<boolean | null>(null);
-  const [isFranchise, setIsFranchise] = useState(false);
-  const [currentDomain, setCurrentDomain] = useState('');
+  const hostname = window.location.hostname;
+  
+  // Check domain IMMEDIATELY (synchronous, no loading screen needed)
+  const isDomainWhitelisted = ALLOWED_DOMAINS.some(domain => 
+    hostname === domain || 
+    hostname.endsWith('.lovable.app') ||
+    hostname.endsWith('.lovableproject.com')
+  );
+
+  const [isAllowed, setIsAllowed] = useState<boolean>(isDomainWhitelisted);
+  const [currentDomain] = useState(hostname);
 
   useEffect(() => {
-    const checkDomainAndRole = async () => {
-      const hostname = window.location.hostname;
-      setCurrentDomain(hostname);
+    // If domain is already whitelisted, no need to check franchise role
+    if (isDomainWhitelisted) {
+      return;
+    }
 
-      // Check if domain is in allowed list or is a lovable preview domain
-      const isDomainAllowed = ALLOWED_DOMAINS.some(domain => 
-        hostname === domain || 
-        hostname.endsWith('.lovable.app') ||
-        hostname.endsWith('.lovableproject.com')
-      );
-
-      // Check if user is franchise
+    // Only check franchise role if domain is NOT whitelisted
+    const checkFranchiseRole = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
         const { data: roles } = await supabase
           .from('user_roles')
           .select('role')
-          .eq('user_id', user.id);
+          .eq('user_id', user.id)
+          .limit(1);
         
         const hasFranchiseRole = roles?.some(r => r.role === 'franchise');
-        setIsFranchise(hasFranchiseRole || false);
         
         // Franchise users bypass domain restriction
         if (hasFranchiseRole) {
           setIsAllowed(true);
-          return;
         }
       }
-
-      setIsAllowed(isDomainAllowed);
     };
 
-    checkDomainAndRole();
-  }, []);
+    checkFranchiseRole();
+  }, [isDomainWhitelisted]);
 
-  // Still loading
-  if (isAllowed === null) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center gap-4">
-          <Shield className="h-16 w-16 text-primary animate-spin" />
-          <p className="text-white/70">Verifying domain security...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Domain not allowed
+  // Show blocking screen ONLY if domain is not whitelisted AND user is not franchise
   if (!isAllowed) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-950 via-slate-900 to-slate-900 flex items-center justify-center p-4">
