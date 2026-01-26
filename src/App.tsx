@@ -244,7 +244,6 @@ import ApplyPortal from "./pages/ApplyPortal";
 import CareerPortal from "./pages/CareerPortal";
 import InternalChat from "./pages/InternalChat";
 import PersonalChat from "./pages/PersonalChat";
-import DomainProtection from "./components/security/DomainProtection";
 import { SourceCodeProtection } from "./components/security/SourceCodeProtection";
 import FloatingAIChatbotWrapper from "./components/shared/FloatingAIChatbotWrapper";
 import QuickSupport from "./components/support/QuickSupport";
@@ -336,7 +335,6 @@ const App = () => (
       <DemoTestModeProvider>
         <AnimationProvider>
           <TooltipProvider>
-            <DomainProtection>
               {/* Disabled to prevent global interaction blocking (login/buttons must always work) */}
               <SourceCodeProtection enabled={false}>
                 <Toaster />
@@ -748,7 +746,6 @@ const App = () => (
                   </SecurityProvider>
                 </BrowserRouter>
               </SourceCodeProtection>
-            </DomainProtection>
           </TooltipProvider>
         </AnimationProvider>
       </DemoTestModeProvider>
