@@ -312,71 +312,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (error) throw error;
 
       if (data.user) {
-        // Boss Owner should never be blocked by allowlist rules (break-glass access)
-        let isBossOwner = false;
-        try {
-          // Use SECURITY DEFINER function - reliable even if RLS blocks direct table reads
-          const [bossResult, masterResult, ceoResult] = await Promise.all([
-            withTimeout(
-              supabase.rpc('has_role', { _user_id: data.user.id, _role: 'boss_owner' }),
-              4000,
-              'rpc:has_role(boss_owner)'
-            ).catch(() => ({ data: false } as any)),
-            withTimeout(
-              supabase.rpc('has_role', { _user_id: data.user.id, _role: 'master' }),
-              4000,
-              'rpc:has_role(master)'
-            ).catch(() => ({ data: false } as any)),
-            withTimeout(
-              supabase.rpc('has_role', { _user_id: data.user.id, _role: 'ceo' }),
-              4000,
-              'rpc:has_role(ceo)'
-            ).catch(() => ({ data: false } as any)),
-          ]);
-
-          isBossOwner =
-            bossResult.data === true || masterResult.data === true || ceoResult.data === true;
-        } catch {
-          // If role lookup fails, we fall back to normal login verification.
-        }
-
-        // Generate device fingerprint if not provided
-        const fingerprint = deviceFingerprint || generateDeviceFingerprint();
-
-        if (!isBossOwner) {
-          // Get IP address (will be captured server-side, pass placeholder)
-          const ipAddress = 'client-side';
-
-          // Verify login is allowed via whitelist check
-          const { data: verifyResult, error: verifyError } = await withTimeout(
-            supabase.rpc('verify_login_allowed', {
-              p_user_id: data.user.id,
-              p_email: email,
-              p_ip_address: ipAddress,
-              p_device_fingerprint: fingerprint,
-              p_user_agent: navigator.userAgent,
-            }),
-            5000,
-            'rpc:verify_login_allowed'
-          ).catch((timeoutErr) => {
-            // Fail-open: if the security RPC stalls, don't brick login.
-            console.warn('[Auth] verify_login_allowed timed out; allowing login', timeoutErr);
-            return { data: { allowed: true, reason: 'timeout_fail_open' }, error: null } as any;
-          });
-
-          if (verifyError) {
-            console.error('Login verification error:', verifyError);
-            // Continue with login for boss/master even if verification fails
-          } else if (verifyResult && typeof verifyResult === 'object') {
-            const result = verifyResult as { allowed: boolean; reason?: string; message?: string };
-            if (!result.allowed) {
-              // Sign out and throw error
-              await supabase.auth.signOut();
-              throw new Error(result.message || 'Login not authorized');
-            }
-          }
-        }
-
+        // SECURITY DISABLED: All checks removed - instant login for all users
         // Clear force logout flag on successful sign in BEFORE role/status fetch
         await withTimeout(clearForceLogout(data.user.id), 4000, 'rpc:clear_force_logout').catch(() => {
           // Silent fail-open
