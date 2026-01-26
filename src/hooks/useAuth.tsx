@@ -298,6 +298,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signIn = async (email: string, password: string, deviceFingerprint?: string) => {
     pendingSignInRef.current = true;
+    console.log('[AUTH HOOK] signIn called for:', email);
 
     try {
       const { data, error } = await withTimeout(
@@ -308,22 +309,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         12000,
         'signInWithPassword'
       );
+      
+      console.log('[AUTH HOOK] Supabase auth response:', { 
+        hasData: !!data, 
+        hasUser: !!data?.user,
+        hasError: !!error,
+        errorMsg: error?.message 
+      });
 
       if (error) throw error;
 
       if (data.user) {
+        console.log('[AUTH HOOK] User authenticated, clearing force logout...');
         // SECURITY DISABLED: All checks removed - instant login for all users
         // Clear force logout flag on successful sign in BEFORE role/status fetch
         await withTimeout(clearForceLogout(data.user.id), 4000, 'rpc:clear_force_logout').catch(() => {
           // Silent fail-open
         });
+        console.log('[AUTH HOOK] Fetching user role...');
         await withTimeout(fetchUserRoleAndStatus(data.user.id), 6000, 'fetchUserRoleAndStatus').catch(() => {
           // Silent fail-open
         });
+        console.log('[AUTH HOOK] Login complete!');
       }
 
       return { error: null };
     } catch (error) {
+      console.error('[AUTH HOOK] Login failed:', error);
       return { error: error as Error };
     } finally {
       pendingSignInRef.current = false;

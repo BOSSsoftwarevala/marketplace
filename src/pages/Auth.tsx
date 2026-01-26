@@ -69,13 +69,19 @@ const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log('[AUTH] Form submitted - starting login process');
+    
     if (!validateForm()) return;
     
     setLoading(true);
+    console.log('[AUTH] Validation passed, calling signIn...');
 
     try {
       if (isLogin) {
         const { error } = await signIn(email, password);
+        console.log('[AUTH] signIn completed:', error ? 'ERROR' : 'SUCCESS');
+        
         if (error) {
           if (error.message.includes('Invalid login credentials')) {
             toast.error('Invalid email or password');
