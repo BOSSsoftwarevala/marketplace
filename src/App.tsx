@@ -13,6 +13,7 @@ import { NotificationProvider } from "./contexts/NotificationContext";
 import { TranslationProvider } from "./contexts/TranslationContext";
 import { GlobalRealtimeProvider } from "./providers/GlobalRealtimeProvider";
 import SystemNotificationsInitializer from "./components/notifications/SystemNotificationsInitializer";
+import InteractivityGuard from "./components/system/InteractivityGuard";
 import RequireRole from "@/components/auth/RequireRole";
 import RequireAuth from "@/components/auth/RequireAuth";
 import GlobalOfferPopup from "@/components/offers/GlobalOfferPopup";
@@ -344,6 +345,7 @@ const App = () => (
                     <NotificationProvider>
                       <TranslationProvider>
                         <GlobalRealtimeProvider>
+                          <InteractivityGuard />
                           <BlockingClassCleanup />
                           <SystemNotificationsInitializer />
                           <GlobalOfferPopup />
