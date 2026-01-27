@@ -842,11 +842,14 @@ nav,
 body::before,
 body::after {
   pointer-events: none !important;
+  display: none !important;
 }
 
-/* Ensure images don't block text/button clicks but still allow image-specific clicks */
+/* CRITICAL: Images must not block clicks on underlying UI */
 img {
-  pointer-events: none;
+  pointer-events: none !important;
+  user-select: none !important;
+  -webkit-user-drag: none !important;
 }
 
 /* Re-enable pointer events for clickable images */
@@ -854,5 +857,37 @@ a img,
 button img,
 [role="button"] img,
 .clickable-image {
+  pointer-events: auto !important;
+}
+
+/* EMERGENCY: Guarantee auth/forms stay clickable even if some wrapper breaks */
+form,
+form * {
+  pointer-events: auto;
+}
+
+button,
+[role="button"],
+button[type="submit"],
+input,
+textarea,
+select {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Ensure generic overlays never steal clicks */
+[class*="overlay"],
+[class*="Overlay"],
+[class*="animation"],
+[class*="Animation"] {
+  pointer-events: none !important;
+}
+
+/* Keep dialogs interactive */
+[role="dialog"],
+[role="alertdialog"],
+[data-radix-dialog-content],
+[data-radix-alert-dialog-content] {
   pointer-events: auto !important;
 }
