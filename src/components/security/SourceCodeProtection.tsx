@@ -277,7 +277,6 @@ export function useSourceCodeProtection() {
         -moz-user-drag: none !important;
         -o-user-drag: none !important;
         user-drag: none !important;
-        pointer-events: none;
       }
       
       /* Add protection overlay on print */

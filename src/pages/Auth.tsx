@@ -272,8 +272,8 @@ const Auth = () => {
             <Button
               type="submit"
               disabled={loading}
-          className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold py-5 mt-6 relative z-[2147483647]"
-          style={{ pointerEvents: 'auto' }}
+          className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold py-5 mt-6 relative"
+          style={{ pointerEvents: 'auto', zIndex: 2147483647, cursor: 'pointer' }}
             >
               {loading ? (
                 <div className="flex items-center gap-2">
