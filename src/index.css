@@ -811,8 +811,7 @@ button:disabled,
 
 /* Security overlays must NOT block clicks */
 .security-overlay,
-.protection-overlay,
-[class*="pointer-events-none"] {
+.protection-overlay {
   pointer-events: none !important;
 }
 
@@ -876,13 +875,11 @@ select {
   cursor: pointer !important;
 }
 
-/* Ensure generic overlays never steal clicks */
-[class*="overlay"],
-[class*="Overlay"],
-[class*="animation"],
-[class*="Animation"] {
-  pointer-events: none !important;
-}
+/* NOTE:
+   Avoid broad substring selectors like [class*="overlay"] / [class*="animation"].
+   Those can accidentally match real layout containers and disable the entire UI.
+   If a specific overlay ever blocks clicks, target it with a specific class/data-attr instead.
+*/
 
 /* Keep dialogs interactive */
 [role="dialog"],
