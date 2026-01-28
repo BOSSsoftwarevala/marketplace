@@ -74,6 +74,13 @@ export default function InteractivityGuard() {
       const targets = [docEl, body, rootEl].filter(Boolean) as HTMLElement[];
 
       for (const el of targets) {
+        // If inert is ever applied to the root containers, the whole UI becomes non-interactive.
+        // Only remove it on the top-level containers (safe for modals/portals).
+        if (el.hasAttribute("inert")) {
+          el.removeAttribute("inert");
+          console.warn("[InteractivityGuard] Removed inert on", el);
+        }
+
         // If a parent is pointer-events none, no child can ever receive clicks.
         const pe = window.getComputedStyle(el).pointerEvents;
         if (pe === "none") {
