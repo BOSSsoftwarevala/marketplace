@@ -13,10 +13,14 @@ import {
   Sparkles,
   Tag,
   CheckCircle,
-  ArrowRight
+  ArrowRight,
+  Rocket,
+  ScanSearch,
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
+import { confirmOrder, type OrderConfirmationResult } from '@/services/MarketplaceService';
 
 interface Product {
   id: string;
@@ -134,6 +138,8 @@ export function MMMarketplaceScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showOrderDialog, setShowOrderDialog] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [pipelineResult, setPipelineResult] = useState<OrderConfirmationResult | null>(null);
 
   const filteredProducts = products.filter(product => {
     const matchesCategory = activeCategory === 'all' || product.category === activeCategory;
@@ -143,6 +149,29 @@ export function MMMarketplaceScreen() {
   });
 
   const walletBalance = 45230; // Would come from state/API
+
+  const handleConfirmOrder = async (product: Product) => {
+    setIsConfirming(true);
+    try {
+      const orderId = `ORD-${Date.now()}`;
+      const result = await confirmOrder(
+        orderId,
+        product.id,
+        product.name,
+        product.features,
+        product.franchisePrice
+      );
+      setPipelineResult(result);
+      setShowOrderDialog(false);
+      toast.success('Order confirmed!', {
+        description: `Scan complete: ${result.scanReport.summary}`,
+      });
+    } catch {
+      toast.error('Failed to confirm order. Please try again.');
+    } finally {
+      setIsConfirming(false);
+    }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -384,9 +413,10 @@ export function MMMarketplaceScreen() {
 
                       <Button 
                         className="w-full bg-purple-500 hover:bg-purple-600"
-                        disabled={walletBalance < product.franchisePrice}
+                        disabled={walletBalance < product.franchisePrice || isConfirming}
+                        onClick={() => handleConfirmOrder(product)}
                       >
-                        Confirm Order
+                        {isConfirming ? 'Processing…' : 'Confirm Order'}
                         <ArrowRight className="h-4 w-4 ml-2" />
                       </Button>
                     </div>
@@ -403,6 +433,42 @@ export function MMMarketplaceScreen() {
           </Card>
         ))}
       </div>
+      {/* Pipeline Result Banner */}
+      {pipelineResult && (
+        <Card className="bg-slate-800 border-emerald-500/40">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold text-emerald-400 flex items-center gap-2">
+              <CheckCircle className="h-4 w-4" />
+              Deployment Pipeline Triggered
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <div className="flex items-center gap-2">
+              <ScanSearch className="h-4 w-4 text-purple-400 shrink-0" />
+              <span className="text-slate-300">{pipelineResult.scanReport.summary}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Rocket className="h-4 w-4 text-cyan-400 shrink-0" />
+              <span className="text-slate-300">
+                Deployment created:{' '}
+                <span className="font-mono text-cyan-400">{pipelineResult.deployment.domain}</span>
+                {' '}— status:{' '}
+                <Badge className="text-xs bg-blue-500/20 text-blue-400 border-blue-500/30">
+                  {pipelineResult.deployment.status}
+                </Badge>
+              </span>
+            </div>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-slate-500 text-xs"
+              onClick={() => setPipelineResult(null)}
+            >
+              Dismiss
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
