@@ -362,6 +362,8 @@ const App = () => (
               <Route path="/server-portal" element={<RequireAuth><ServerManagementPortal /></RequireAuth>} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              {/* Basic profile route to satisfy header navigation */}
+              <Route path="/profile" element={<RequireAuth><SettingsPage /></RequireAuth>} />
               <Route path="/pending-approval" element={<PendingApproval />} />
               <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
               <Route path="/change-password" element={<RequireAuth><ChangePassword /></RequireAuth>} />
@@ -425,7 +427,6 @@ const App = () => (
               <Route path="/user-dashboard" element={<SimpleUserDashboard />} />
               <Route path="/user/dashboard" element={<RequireAuth><UserDashboard /></RequireAuth>} />
               <Route path="/demo-login" element={<DemoLogin />} />
-              <Route path="/showcase" element={<Index />} />
               <Route path="/premium-demos" element={<PremiumDemoShowcase />} />
               
               {/* Client Portal - Public Route */}
@@ -493,9 +494,9 @@ const App = () => (
               <Route path="/seo-manager" element={<RequireRole allowed={["boss_owner", "seo_manager"]}><SEOManagerDashboard /></RequireRole>} />
               <Route path="/seo-manager/*" element={<RequireRole allowed={["boss_owner", "seo_manager"]}><SEOManagerDashboard /></RequireRole>} />
 
-              {/* Legal Manager Routes */}
-              <Route path="/legal-manager" element={<RequireRole allowed={["boss_owner", "legal_manager"]}><LegalManagerDashboard /></RequireRole>} />
-              <Route path="/legal-manager/*" element={<RequireRole allowed={["boss_owner", "legal_manager"]}><LegalManagerDashboard /></RequireRole>} />
+              {/* Legal Manager Routes (enum role: legal_compliance) */}
+              <Route path="/legal-manager" element={<RequireRole allowed={["boss_owner", "legal_compliance"]}><LegalManagerDashboard /></RequireRole>} />
+              <Route path="/legal-manager/*" element={<RequireRole allowed={["boss_owner", "legal_compliance"]}><LegalManagerDashboard /></RequireRole>} />
 
               {/* AI CEO Routes - Autonomous Intelligence Observer */}
               <Route path="/ai-ceo" element={<RequireRole allowed={["boss_owner", "ceo"]}><AICEODashboard /></RequireRole>}>
@@ -586,7 +587,7 @@ const App = () => (
               <Route path="/influencer-command-center" element={<RequireRole allowed={["influencer", "super_admin"]}><InfluencerCommandCenter /></RequireRole>} />
               <Route path="/influencer-dashboard" element={<RequireRole allowed={["influencer", "super_admin"]}><InfluencerDashboard /></RequireRole>} />
               <Route path="/influencer-manager" element={<RequireRole allowed={["super_admin"]}><InfluencerManager /></RequireRole>} />
-              <Route path="/influencer-manager-secure" element={<RequireRole allowed={["influencer_manager", "super_admin"]}><SecureInfluencerManagerDashboard /></RequireRole>} />
+              <Route path="/influencer-manager-secure" element={<RequireRole allowed={["boss_owner", "super_admin"]}><SecureInfluencerManagerDashboard /></RequireRole>} />
               
               {/* Product Demo Manager Routes */}
               <Route path="/product-demo-manager" element={<RequireRole allowed={["product_demo_manager", "demo_manager", "super_admin"]}><ProductDemoManagerPage /></RequireRole>} />
@@ -596,9 +597,9 @@ const App = () => (
               <Route path="/reseller-manager" element={<RequireRole allowed={["reseller_manager", "super_admin"]}><SecureResellerManagerDashboard /></RequireRole>} />
               <Route path="/reseller-manager-secure" element={<RequireRole allowed={["reseller_manager", "super_admin"]}><SecureResellerManagerDashboard /></RequireRole>} />
               
-              {/* Sales & Support Manager Routes */}
-              <Route path="/sales-support-manager" element={<RequireRole allowed={["sales_support_manager", "super_admin"]}><SecureSalesSupportManagerDashboard /></RequireRole>} />
-              <Route path="/sales-support-manager-secure" element={<RequireRole allowed={["sales_support_manager", "super_admin"]}><SecureSalesSupportManagerDashboard /></RequireRole>} />
+              {/* Sales & Support Manager Routes (enum roles: client_success/support) */}
+              <Route path="/sales-support-manager" element={<RequireRole allowed={["client_success", "support", "super_admin"]}><SecureSalesSupportManagerDashboard /></RequireRole>} />
+              <Route path="/sales-support-manager-secure" element={<RequireRole allowed={["client_success", "support", "super_admin"]}><SecureSalesSupportManagerDashboard /></RequireRole>} />
               
               {/* Public demo route for Influencer Command Center */}
               <Route path="/demo/influencer-command-center" element={<InfluencerCommandCenter />} />
@@ -634,7 +635,7 @@ const App = () => (
               <Route path="/task-manager-secure" element={<RequireRole allowed={["task_manager", "super_admin"]}><SecureTaskManagerDashboard /></RequireRole>} />
               
               {/* Secure Legal Manager Dashboard */}
-              <Route path="/legal-manager-secure" element={<RequireRole allowed={["legal_manager", "super_admin"]}><SecureLegalManagerDashboard /></RequireRole>} />
+              <Route path="/legal-manager-secure" element={<RequireRole allowed={["legal_compliance", "super_admin"]}><SecureLegalManagerDashboard /></RequireRole>} />
               <Route path="/seo" element={<RequireRole allowed={["seo_manager", "super_admin"]}><SEODashboard /></RequireRole>} />
               <Route path="/seo/*" element={<RequireRole allowed={["seo_manager", "super_admin"]}><SEODashboard /></RequireRole>} />
               <Route path="/seo-dashboard" element={<RequireRole allowed={["seo_manager", "super_admin"]}><SEODashboard /></RequireRole>} />
@@ -647,8 +648,9 @@ const App = () => (
               <Route path="/sales/*" element={<RequireRole allowed={["support", "super_admin"]}><SalesSupportDashboard /></RequireRole>} />
               <Route path="/client-success" element={<RequireRole allowed={["client_success", "super_admin"]}><ClientSuccessDashboard /></RequireRole>} />
               <Route path="/clients/*" element={<RequireRole allowed={["client_success", "super_admin"]}><ClientSuccessDashboard /></RequireRole>} />
-              <Route path="/incident-crisis" element={<RequireRole allowed={["incident_crisis", "super_admin"]}><IncidentCrisisDashboard /></RequireRole>} />
-              <Route path="/crisis/*" element={<RequireRole allowed={["incident_crisis", "super_admin"]}><IncidentCrisisDashboard /></RequireRole>} />
+              {/* Incident / crisis routes (no dedicated enum; restrict to super_admin + boss_owner) */}
+              <Route path="/incident-crisis" element={<RequireRole allowed={["boss_owner", "super_admin"]}><IncidentCrisisDashboard /></RequireRole>} />
+              <Route path="/crisis/*" element={<RequireRole allowed={["boss_owner", "super_admin"]}><IncidentCrisisDashboard /></RequireRole>} />
               <Route path="/hr-dashboard" element={<RequireRole allowed={["hr_manager", "super_admin"]}><HRDashboard /></RequireRole>} />
               <Route path="/ai/*" element={<RequireRole allowed={["ai_manager", "super_admin"]}><AIOptimizationConsole /></RequireRole>} />
 

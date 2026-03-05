@@ -12,7 +12,11 @@ import { withAuth, RequestContext } from "../_shared/middleware.ts";
 
 serve(async (req: Request) => {
   const url = new URL(req.url);
-  const path = url.pathname.replace("/api/tasks", "");
+  // Normalize for "api-tasks" function and legacy "/api/tasks" proxy
+  const path = url.pathname
+    .replace("/functions/v1/api-tasks", "")
+    .replace("/api-tasks", "")
+    .replace("/api/tasks", "");
 
   // POST /tasks/create
   if (path === "/create" && req.method === "POST") {

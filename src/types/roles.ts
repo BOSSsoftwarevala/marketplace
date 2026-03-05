@@ -36,47 +36,54 @@
 //   23. user → mapped to 'client'
 //   24. frontend → read-only UI layer
 
-// Database-compatible AppRole type (matches Supabase enum)
+// Database-compatible AppRole type (matches Supabase enum in integrations/supabase/types.ts)
 export type AppRole = 
   | 'super_admin'
-  | 'server_manager'
-  | 'area_manager'
-  | 'developer'
+  | 'demo_manager'
   | 'franchise'
   | 'reseller'
-  | 'influencer'
+  | 'client'
   | 'prime'
+  | 'developer'
+  | 'influencer'
+  | 'marketing_manager'
+  | 'client_success'
   | 'seo_manager'
   | 'lead_manager'
   | 'task_manager'
-  | 'demo_manager'
   | 'rnd_manager'
-  | 'client_success'
   | 'performance_manager'
   | 'finance_manager'
-  | 'marketing_manager'
   | 'legal_compliance'
   | 'hr_manager'
   | 'support'
   | 'ai_manager'
-  | 'client'
+  | 'admin'
   | 'api_security'
   | 'r_and_d'
   | 'master'
-  // NEW ROLES (25-28)
   | 'safe_assist'
   | 'assist_manager'
   | 'promise_tracker'
-  | 'promise_management';
+  | 'promise_management'
+  | 'area_manager'
+  | 'server_manager'
+  | 'product_demo_manager'
+  | 'boss_owner'
+  | 'ceo'
+  | 'reseller_manager';
 
 // Grade classification for display/logic
 export type RoleGrade = 0 | 1 | 2 | 3 | 4;
 
 export const ROLE_GRADES: Record<AppRole, { grade: RoleGrade; gradeLabel: string; displayName: string }> = {
   // GRADE 0 – OWNERSHIP
+  boss_owner: { grade: 0, gradeLabel: 'Ownership', displayName: 'Boss Owner' },
   master: { grade: 0, gradeLabel: 'Ownership', displayName: 'Master Admin' },
   // GRADE 1 – PLATFORM CONTROL
   super_admin: { grade: 1, gradeLabel: 'Platform Control', displayName: 'Super Admin' },
+  admin: { grade: 1, gradeLabel: 'Platform Control', displayName: 'Admin' },
+  ceo: { grade: 1, gradeLabel: 'Platform Control', displayName: 'CEO' },
   server_manager: { grade: 1, gradeLabel: 'Platform Control', displayName: 'Server Manager' },
   area_manager: { grade: 1, gradeLabel: 'Platform Control', displayName: 'Area Manager' },
   // GRADE 2 – BUSINESS MANAGEMENT (mapped from old roles)
@@ -94,6 +101,8 @@ export const ROLE_GRADES: Record<AppRole, { grade: RoleGrade; gradeLabel: string
   performance_manager: { grade: 2, gradeLabel: 'Business Management', displayName: 'Developer Manager' },
   rnd_manager: { grade: 2, gradeLabel: 'Business Management', displayName: 'R&D Manager' },
   finance_manager: { grade: 2, gradeLabel: 'Business Management', displayName: 'Finance Manager' },
+  product_demo_manager: { grade: 2, gradeLabel: 'Business Management', displayName: 'Product Demo Manager' },
+  reseller_manager: { grade: 2, gradeLabel: 'Business Management', displayName: 'Reseller Manager' },
   // GRADE 3 – PARTNERS
   franchise: { grade: 3, gradeLabel: 'Partners', displayName: 'Franchise' },
   developer: { grade: 3, gradeLabel: 'Partners', displayName: 'Developer' },

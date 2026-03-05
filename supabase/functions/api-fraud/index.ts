@@ -114,7 +114,11 @@ function calculateRiskScore(data: any): any {
 
 serve(async (req: Request) => {
   const url = new URL(req.url);
-  const path = url.pathname.replace("/api/fraud", "");
+  // Normalize for "api-fraud" function and legacy "/api/fraud" proxy
+  const path = url.pathname
+    .replace("/functions/v1/api-fraud", "")
+    .replace("/api-fraud", "")
+    .replace("/api/fraud", "");
 
   // POST /fraud/check-login - Check login attempt
   if (path === "/check-login" && req.method === "POST") {

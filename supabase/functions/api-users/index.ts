@@ -12,7 +12,12 @@ import { withAuth, withSuperAdmin, RequestContext } from "../_shared/middleware.
 
 serve(async (req: Request) => {
   const url = new URL(req.url);
-  const path = url.pathname.replace("/api/users", "").replace("/api/roles", "");
+  // Normalize for "api-users" function and legacy "/api/users" + "/api/roles" proxies
+  const path = url.pathname
+    .replace("/functions/v1/api-users", "")
+    .replace("/api-users", "")
+    .replace("/api/users", "")
+    .replace("/api/roles", "");
 
   // POST /users/create (Admin only)
   if (path === "/create" && req.method === "POST") {

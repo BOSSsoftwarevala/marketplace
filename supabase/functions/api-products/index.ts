@@ -8,7 +8,11 @@ import { withAuth, RequestContext } from "../_shared/middleware.ts";
 
 serve(async (req: Request) => {
   const url = new URL(req.url);
-  const path = url.pathname.replace("/api/products", "");
+  // Normalize for "api-products" function and legacy "/api/products" proxy
+  const path = url.pathname
+    .replace("/functions/v1/api-products", "")
+    .replace("/api-products", "")
+    .replace("/api/products", "");
 
   // POST /products/create
   if (path === "/create" && req.method === "POST") {

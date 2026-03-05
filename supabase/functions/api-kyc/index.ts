@@ -11,7 +11,12 @@ import { withAuth, withSuperAdmin, RequestContext } from "../_shared/middleware.
 
 serve(async (req: Request) => {
   const url = new URL(req.url);
-  const path = url.pathname.replace("/api/kyc", "").replace("/api/legal", "");
+  // Normalize for "api-kyc" function and legacy "/api/kyc" + "/api/legal" proxies
+  const path = url.pathname
+    .replace("/functions/v1/api-kyc", "")
+    .replace("/api-kyc", "")
+    .replace("/api/kyc", "")
+    .replace("/api/legal", "");
 
   // POST /kyc/upload
   if (path === "/upload" && req.method === "POST") {
