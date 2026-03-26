@@ -13,11 +13,7 @@ import { withAuth, withPublic, RequestContext } from "../_shared/middleware.ts";
 
 serve(async (req: Request) => {
   const url = new URL(req.url);
-  // Support both direct function invocations (functions/v1/api-auth) and legacy /api/auth proxy paths
-  const path = url.pathname
-    .replace("/functions/v1/api-auth", "")
-    .replace("/api-auth", "")
-    .replace("/api/auth", "");
+  const path = url.pathname.replace("/api/auth", "");
 
   // POST /auth/register
   if (path === "/register" && req.method === "POST") {

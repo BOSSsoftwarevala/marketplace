@@ -1,23 +1,335 @@
-// Updated src/App.tsx to fix routing issues and role mismatches.
-import React from 'react';
-import { Route, Switch } from 'react-router-dom';
-import ComponentOne from './components/ComponentOne';
-import ComponentTwo from './components/ComponentTwo';
-// More imports...
+import React from "react";
+import { Toaster } from "@/components/ui/toaster";
+import InfluencerCommandCenter from "@/pages/InfluencerCommandCenter";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./hooks/useAuth";
+import { AnimationProvider } from "./contexts/AnimationContext";
+import { DemoTestModeProvider } from "./contexts/DemoTestModeContext";
+import { SecurityProvider } from "./contexts/SecurityContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
+import { TranslationProvider } from "./contexts/TranslationContext";
+import { GlobalRealtimeProvider } from "./providers/GlobalRealtimeProvider";
+import SystemNotificationsInitializer from "./components/notifications/SystemNotificationsInitializer";
+import InteractivityGuard from "./components/system/InteractivityGuard";
+import RequireRole from "@/components/auth/RequireRole";
+import RequireAuth from "@/components/auth/RequireAuth";
+import GlobalOfferPopup from "@/components/offers/GlobalOfferPopup";
+import AdminQuickAccess from "@/components/admin/AdminQuickAccess";
+import ButtonAuditOverlay from "@/components/shared/ButtonAuditOverlay";
+import Homepage from "./pages/Homepage";
+import Index from "./pages/Index";
+import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
+import CategoryOnboarding from "./pages/CategoryOnboarding";
+import NotFound from "./pages/NotFound";
 
-const App = () => {
-  return (
-    <Switch>
-      {/* Consolidated routes */}
-      <Route path="/seo" component={ComponentOne} />
-      <Route path="/franchise" component={ComponentTwo} />
-      {/* Other routes... */}
-      {/* Removed duplicate routes and unnecessary role checks */}
-    </Switch>
-  );
+// Auth Pages
+import { Navigate } from "react-router-dom";
+import Logout from "./pages/auth/Logout";
+import OTPVerify from "./pages/auth/OTPVerify";
+import DeviceVerify from "./pages/auth/DeviceVerify";
+import IPVerify from "./pages/auth/IPVerify";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
+import ChangePassword from "./pages/auth/ChangePassword";
+import AccountSuspension from "./pages/auth/AccountSuspension";
+import AccessDenied from "./pages/auth/AccessDenied";
+import PendingApproval from "./pages/auth/PendingApproval";
+import BossFortressAuth from "./pages/auth/BossFortressAuth";
+import BossRegister from "./pages/auth/BossRegister";
+import EasyAuth from "./pages/auth/EasyAuth";
+import RoleBasedLogin from "./pages/auth/RoleBasedLogin";
+import SessionExpiredPage from "./pages/error/SessionExpiredPage";
+
+// Public Pages
+import PublicDemos from "./pages/demos/PublicDemos";
+import SimpleDemoList from "./pages/SimpleDemoList";
+import SimpleDemoView from "./pages/SimpleDemoView";
+import SimpleCheckout from "./pages/SimpleCheckout";
+import SimpleUserDashboard from "./pages/SimpleUserDashboard";
+import UserDashboard from "./pages/user/UserDashboard";
+import DemoAccess from "./pages/DemoAccess";
+import DemoDirectory from "./pages/DemoDirectory";
+import DemoLogin from "./pages/DemoLogin";
+import DemoShowcase from "./pages/DemoShowcase";
+import PremiumDemoShowcase from "./pages/PremiumDemoShowcase";
+import PremiumDemoShowcaseNew from "./pages/showcase/PremiumDemoShowcase";
+import ServerManagementPortal from "./pages/server/ServerManagementPortal";
+import ClientPortal from "./pages/ClientPortal";
+
+// Demo Product Pages - One-click access, no login
+import RestaurantPOSDemo from "./pages/demos/RestaurantPOSDemo";
+import SaaSPOSDemo from "./pages/saas-pos/SaaSPOSDemo";
+import RestaurantSmallDemo from "./pages/demos/restaurant/RestaurantSmallDemo";
+import RestaurantMediumDemo from "./pages/demos/restaurant/RestaurantMediumDemo";
+import RestaurantLargeDemo from "./pages/demos/restaurant/RestaurantLargeDemo";
+import SchoolERPDemo from "./pages/demos/SchoolERPDemo";
+import SchoolSmallDemo from "./pages/demos/school/SchoolSmallDemo";
+import SchoolMediumDemo from "./pages/demos/school/SchoolMediumDemo";
+import SchoolLargeDemo from "./pages/demos/school/SchoolLargeDemo";
+import EducationDemoHub from "./pages/demos/education/EducationDemoHub";
+import HospitalHMSDemo from "./pages/demos/HospitalHMSDemo";
+import EcommerceStoreDemo from "./pages/demos/EcommerceStoreDemo";
+import HotelBookingDemo from "./pages/demos/HotelBookingDemo";
+import RealEstateDemo from "./pages/demos/RealEstateDemo";
+import AutomotiveDemo from "./pages/demos/AutomotiveDemo";
+import TravelDemo from "./pages/demos/TravelDemo";
+import FinanceDemo from "./pages/demos/FinanceDemo";
+import ManufacturingDemo from "./pages/demos/ManufacturingDemo";
+import GymDemo from "./pages/demos/GymDemo";
+import SalonDemo from "./pages/demos/SalonDemo";
+import LegalDemo from "./pages/demos/LegalDemo";
+import SecurityDemo from "./pages/demos/SecurityDemo";
+import TelecomDemo from "./pages/demos/TelecomDemo";
+import ChildcareDemo from "./pages/demos/ChildcareDemo";
+import PetCareDemo from "./pages/demos/PetCareDemo";
+import EventDemo from "./pages/demos/EventDemo";
+import CRMDemo from "./pages/demos/CRMDemo";
+import LogisticsDemo from "./pages/demos/LogisticsDemo";
+import SalesCRMDemo from "./pages/sales-crm/SalesCRMDemo";
+import SalesCRMAuthPage from "./pages/sales-crm/SalesCRMAuthPage";
+import SimpleHRMDemo from "./pages/simple-hrm/SimpleHRMDemo";
+import CorporateHRMDemo from "./pages/corporate-hrm/CorporateHRMDemo";
+import SaasHRMDemo from "./pages/saas-hrm/SaasHRMDemo";
+import RetailPOSDemo from "./pages/retail-pos/RetailPOSDemo";
+import RestaurantPOSNewDemo from "./pages/restaurant-pos-new/RestaurantPOSNewDemo";
+import AccountingDemo from "./pages/accounting/AccountingDemo";
+import ProAccountingDemo from "./pages/pro-accounting/ProAccountingDemo";
+import AutoDevEngine from "./pages/auto-dev/AutoDevEngine";
+
+// School Management Software - LIVE SYSTEM (NOT DEMO)
+import SchoolSoftwareHomepage from "./pages/school-software/SchoolSoftwareHomepage";
+import SchoolSoftwareDashboard from "./pages/school-software/SchoolSoftwareDashboard";
+
+import SettingsPage from "./pages/Settings";
+
+// Super Admin Pages
+import SuperAdminCommandCenter from "./pages/super-admin/CommandCenter";
+import LiveTracking from "./pages/super-admin/LiveTracking";
+import RoleManager from "./pages/super-admin/RoleManager";
+import UserManager from "./pages/super-admin/UserManager";
+import PermissionMatrix from "./pages/super-admin/PermissionMatrix";
+import SecurityCenter from "./pages/super-admin/SecurityCenter";
+import ProductManagerPage from "./pages/super-admin/ProductManagerPage";
+import SystemAudit from "./pages/super-admin/SystemAudit";
+import PrimeManager from "./pages/super-admin/PrimeManager";
+import ServerManagerDashboard from "./pages/server-manager/ServerManagerDashboard";
+import SecurityCommandCenter from "./pages/security-command/SecurityCommandCenter";
+import APIManagerDashboard from "./pages/api-manager/APIManagerDashboard";
+import MarketingManagerDashboard from "./pages/marketing-manager/MarketingManagerDashboard";
+import SEOManagerDashboard from "./pages/seo-manager/SEOManagerDashboard";
+import LegalManagerDashboard from "./pages/legal-manager/LegalManagerDashboard";
+
+import ComplianceCenter from "./pages/super-admin/ComplianceCenter";
+
+// Boss Owner Admin Pages
+import MasterAdminDashboard from "./pages/master-admin/MasterAdminDashboard";
+import MasterControlCenter from "./pages/master-control/MasterControlCenter";
+import MasterAdminSupreme from "./pages/master-admin-supreme/MasterAdminSupreme";
+import SoftwareWalaOwnerDashboard from "./pages/owner/SoftwareWalaOwnerDashboard";
+import BootstrapAdmins from "./pages/admin/BootstrapAdmins";
+import RoleManagerPage from "./pages/admin/RoleManagerPage";
+
+// Vala Control System Pages
+import ValaControlHub from "./pages/vala-control/ValaControlHub";
+import ValaOperationWorkspace from "./pages/vala-control/ValaOperationWorkspace";
+import ValaRegionalWorkspace from "./pages/vala-control/ValaRegionalWorkspace";
+import ValaAIHeadWorkspace from "./pages/vala-control/ValaAIHeadWorkspace";
+import ValaMasterWorkspace from "./pages/vala-control/ValaMasterWorkspace";
+
+// Dev Manager Pages
+import SecureDevManagerDashboard from "./pages/dev-manager/SecureDevManagerDashboard";
+
+// HR Manager Pages
+import SecureHRManagerDashboard from "./pages/hr-manager/SecureHRManagerDashboard";
+
+// Task Manager Pages
+import SecureTaskManagerDashboard from "./pages/task-manager/SecureTaskManagerDashboard";
+
+// Legal Manager Pages
+import SecureLegalManagerDashboard from "./pages/legal-manager/SecureLegalManagerDashboard";
+
+// Pro Manager Pages
+import SecureProManagerDashboard from "./pages/pro-manager/SecureProManagerDashboard";
+
+// Lead Manager Pages
+import SecureLeadManagerDashboard from "./pages/lead-manager/SecureLeadManagerDashboard";
+
+// Marketing Manager Pages
+import SecureMarketingManagerDashboard from "./pages/marketing-manager/SecureMarketingManagerDashboard";
+
+// Influencer Manager Pages
+import SecureInfluencerManagerDashboard from "./pages/influencer-manager/SecureInfluencerManagerDashboard";
+
+// SEO Manager Pages
+import SecureSEOManagerDashboard from "./pages/seo-manager/SecureSEOManagerDashboard";
+
+// API/AI Manager Pages
+import SecureAPIAIManagerDashboard from "./pages/api-ai-manager/SecureAPIAIManagerDashboard";
+
+// Reseller Manager Pages
+import SecureResellerManagerDashboard from "./pages/reseller-manager/SecureResellerManagerDashboard";
+
+// Sales & Support Manager Pages
+import SecureSalesSupportManagerDashboard from "./pages/sales-support-manager/SecureSalesSupportManagerDashboard";
+
+// Secure Control System Pages
+import SecureControlSystem from "./pages/control-system/SecureControlSystem";
+import MasterAdminControl from "./pages/control-system/MasterAdminControl";
+
+// Enterprise Control System
+import EnterpriseControlHub from "./pages/enterprise-control/EnterpriseControlHub";
+
+import BulkUserCreation from "./pages/admin/BulkUserCreation";
+import BulkActionsReference from "./pages/admin/BulkActionsReference";
+import ContinentSuperAdminDashboard from "./pages/continent-super-admin/ContinentSuperAdminDashboard";
+
+// Product Demo Manager
+import ProductDemoManagerPage from "./pages/product-demo-manager";
+// Franchise Layout & Pages
+import FranchiseLayout from "./components/layouts/FranchiseLayout";
+import FranchiseDashboardPage from "./pages/franchise/Dashboard";
+import FranchiseProfile from "./pages/franchise/Profile";
+import FranchiseWalletPage from "./pages/franchise/Wallet";
+import FranchiseLeadBoardPage from "./pages/franchise/LeadBoard";
+import FranchiseAssignLead from "./pages/franchise/AssignLead";
+import FranchiseDemoRequest from "./pages/franchise/DemoRequest";
+import FranchiseDemoLibraryPage from "./pages/franchise/DemoLibrary";
+import FranchiseSalesCenter from "./pages/franchise/SalesCenter";
+import FranchisePerformancePage from "./pages/franchise/Performance";
+import FranchiseSupportTicket from "./pages/franchise/SupportTicket";
+import FranchiseInternalChatPage from "./pages/franchise/InternalChat";
+import FranchiseTrainingCenter from "./pages/franchise/TrainingCenter";
+import FranchiseSecurityPanel from "./pages/franchise/SecurityPanel";
+import FranchiseSEOServices from "./pages/franchise/SEOServices";
+import FranchiseTeamManagement from "./pages/franchise/TeamManagement";
+import FranchiseCRM from "./pages/franchise/CRM";
+import FranchiseHRM from "./pages/franchise/HRM";
+import FranchiseLeadActivity from "./pages/franchise/LeadActivity";
+
+// Existing Pages
+import FranchiseManagement from "./pages/FranchiseManagement";
+import FranchiseLanding from "./pages/FranchiseLanding";
+import FranchiseDashboard from "./pages/FranchiseDashboard";
+import ResellerLanding from "./pages/ResellerLanding";
+import ResellerDashboard from "./pages/ResellerDashboard";
+import ResellerPortal from "./pages/ResellerPortal";
+import DeveloperDashboard from "./pages/DeveloperDashboard";
+import DevCommandCenter from "./pages/DevCommandCenter";
+import DeveloperRegistration from "./pages/developer/DeveloperRegistration";
+import InfluencerDashboard from "./pages/InfluencerDashboard";
+import InfluencerManager from "./pages/InfluencerManager";
+import SupportDashboard from "./pages/SupportDashboard";
+import SEODashboard from "./pages/SEODashboard";
+import LeadManager from "./pages/LeadManager";
+import TaskManager from "./pages/TaskManager";
+import RnDDashboard from "./pages/RnDDashboard";
+import ClientSuccessDashboard from "./pages/ClientSuccessDashboard";
+import IncidentCrisisDashboard from "./pages/IncidentCrisisDashboard";
+import PerformanceManager from "./pages/PerformanceManager";
+import FinanceManager from "./pages/FinanceManager";
+import ProductDemoManager from "./pages/ProductDemoManager";
+import DemoManagerDashboard from "./pages/DemoManagerDashboard";
+import PrimeUserDashboard from "./pages/PrimeUserDashboard";
+import LegalComplianceManager from "./pages/LegalComplianceManager";
+import MarketingManager from "./pages/MarketingManager";
+import SalesSupportDashboard from "./pages/SalesSupportDashboard";
+import HRDashboard from "./pages/HRDashboard";
+import SystemSettings from "./pages/SystemSettings";
+import NotificationBuzzerConsole from "./pages/NotificationBuzzerConsole";
+import APIIntegrationDashboard from "./pages/APIIntegrationDashboard";
+import ApplyPortal from "./pages/ApplyPortal";
+import CareerPortal from "./pages/CareerPortal";
+import InternalChat from "./pages/InternalChat";
+import PersonalChat from "./pages/PersonalChat";
+import { SourceCodeProtection } from "./components/security/SourceCodeProtection";
+import FloatingAIChatbotWrapper from "./components/shared/FloatingAIChatbotWrapper";
+import QuickSupport from "./components/support/QuickSupport";
+import AIOptimizationConsole from "./pages/ai-console/AIOptimizationConsole";
+import { AICEODashboard } from "./pages/ai-ceo";
+import AICEODashboardMain from "./pages/ai-ceo/sections/AICEODashboardMain";
+import AICEOLiveMonitor from "./pages/ai-ceo/sections/AICEOLiveMonitor";
+import AICEODecisionEngine from "./pages/ai-ceo/sections/AICEODecisionEngine";
+import AICEOApprovals from "./pages/ai-ceo/sections/AICEOApprovals";
+import AICEORiskCompliance from "./pages/ai-ceo/sections/AICEORiskCompliance";
+import AICEOPerformance from "./pages/ai-ceo/sections/AICEOPerformance";
+import AICEOPredictions from "./pages/ai-ceo/sections/AICEOPredictions";
+import AICEOReports from "./pages/ai-ceo/sections/AICEOReports";
+import AICEOLearning from "./pages/ai-ceo/sections/AICEOLearning";
+import AICEOSettings from "./pages/ai-ceo/sections/AICEOSettings";
+import DemoCredentials from "./pages/DemoCredentials";
+import DemoOrderSystem from "./pages/demo-system/DemoOrderSystem";
+import SectorsBrowse from "./pages/SectorsBrowse";
+import SubCategoryDemos from "./pages/SubCategoryDemos";
+// Business Management Software
+import { BusinessLayout } from "./components/business/BusinessLayout";
+import BusinessDashboard from "./pages/business/BusinessDashboard";
+import CustomersPage from "./pages/business/CustomersPage";
+import BillingPage from "./pages/business/BillingPage";
+import ExpensesPage from "./pages/business/ExpensesPage";
+import ReportsPage from "./pages/business/ReportsPage";
+import BusinessSettings from "./pages/business/BusinessSettings";
+import { AIBillingDashboard } from "./components/ai-billing";
+// New Role Pages (25-28)
+import SafeAssistDashboard from "./pages/safe-assist/SafeAssistDashboard";
+import AssistManagerDashboard from "./pages/assist-manager/AssistManagerDashboard";
+import PromiseTrackerDashboard from "./pages/promise-tracker/PromiseTrackerDashboard";
+import PromiseManagementDashboard from "./pages/promise-management/PromiseManagementDashboard";
+// Wireframe Routes
+import { WireframeRoutes } from "./components/wireframe/WireframeRoutes";
+// Vala Control System
+import ValaControlCenter from "./pages/vala-control/ValaControlCenter";
+// Super Admin System
+import {
+  RoleSwitchDashboard,
+  SuperAdminLogin,
+  SuperAdminDashboard as SuperAdminSystemDashboard,
+  SuperAdminUsers,
+  SuperAdminAdmins,
+  SuperAdminRoles,
+  SuperAdminGeography,
+  SuperAdminModules,
+  SuperAdminRentals,
+  SuperAdminRules,
+  SuperAdminApprovals,
+  SuperAdminSecurity,
+  SuperAdminSystemLock,
+  SuperAdminActivityLog,
+  SuperAdminAudit
+} from "./pages/super-admin-system";
+
+// Leader Security Assessment
+import LeaderSecurityAssessment from "./pages/leader-security/LeaderSecurityAssessment";
+
+// Optimized QueryClient with caching for better performance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 30, // 30 minutes (formerly cacheTime)
+      retry: 2,
+      refetchOnWindowFocus: false, // Reduce unnecessary refetches
+      refetchOnReconnect: true,
+    },
+  },
+});
+
+// Cleanup component to remove any stuck blocking classes on app mount
+const BlockingClassCleanup = () => {
+  React.useEffect(() => {
+    // Remove any stuck buzzer-blocking class that could prevent button clicks
+    document.body.classList.remove('buzzer-blocking');
+    // Clean up on unmount too
+    return () => {
+      document.body.classList.remove('buzzer-blocking');
+    };
+  }, []);
+  return null;
 };
 
-<<<<<<< HEAD
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -50,8 +362,6 @@ const App = () => (
               <Route path="/server-portal" element={<RequireAuth><ServerManagementPortal /></RequireAuth>} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              {/* Basic profile route to satisfy header navigation */}
-              <Route path="/profile" element={<RequireAuth><SettingsPage /></RequireAuth>} />
               <Route path="/pending-approval" element={<PendingApproval />} />
               <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
               <Route path="/change-password" element={<RequireAuth><ChangePassword /></RequireAuth>} />
@@ -115,6 +425,7 @@ const App = () => (
               <Route path="/user-dashboard" element={<SimpleUserDashboard />} />
               <Route path="/user/dashboard" element={<RequireAuth><UserDashboard /></RequireAuth>} />
               <Route path="/demo-login" element={<DemoLogin />} />
+              <Route path="/showcase" element={<Index />} />
               <Route path="/premium-demos" element={<PremiumDemoShowcase />} />
               
               {/* Client Portal - Public Route */}
@@ -182,9 +493,9 @@ const App = () => (
               <Route path="/seo-manager" element={<RequireRole allowed={["boss_owner", "seo_manager"]}><SEOManagerDashboard /></RequireRole>} />
               <Route path="/seo-manager/*" element={<RequireRole allowed={["boss_owner", "seo_manager"]}><SEOManagerDashboard /></RequireRole>} />
 
-              {/* Legal Manager Routes (enum role: legal_compliance) */}
-              <Route path="/legal-manager" element={<RequireRole allowed={["boss_owner", "legal_compliance"]}><LegalManagerDashboard /></RequireRole>} />
-              <Route path="/legal-manager/*" element={<RequireRole allowed={["boss_owner", "legal_compliance"]}><LegalManagerDashboard /></RequireRole>} />
+              {/* Legal Manager Routes */}
+              <Route path="/legal-manager" element={<RequireRole allowed={["boss_owner", "legal_manager"]}><LegalManagerDashboard /></RequireRole>} />
+              <Route path="/legal-manager/*" element={<RequireRole allowed={["boss_owner", "legal_manager"]}><LegalManagerDashboard /></RequireRole>} />
 
               {/* AI CEO Routes - Autonomous Intelligence Observer */}
               <Route path="/ai-ceo" element={<RequireRole allowed={["boss_owner", "ceo"]}><AICEODashboard /></RequireRole>}>
@@ -275,7 +586,7 @@ const App = () => (
               <Route path="/influencer-command-center" element={<RequireRole allowed={["influencer", "super_admin"]}><InfluencerCommandCenter /></RequireRole>} />
               <Route path="/influencer-dashboard" element={<RequireRole allowed={["influencer", "super_admin"]}><InfluencerDashboard /></RequireRole>} />
               <Route path="/influencer-manager" element={<RequireRole allowed={["super_admin"]}><InfluencerManager /></RequireRole>} />
-              <Route path="/influencer-manager-secure" element={<RequireRole allowed={["boss_owner", "super_admin"]}><SecureInfluencerManagerDashboard /></RequireRole>} />
+              <Route path="/influencer-manager-secure" element={<RequireRole allowed={["influencer_manager", "super_admin"]}><SecureInfluencerManagerDashboard /></RequireRole>} />
               
               {/* Product Demo Manager Routes */}
               <Route path="/product-demo-manager" element={<RequireRole allowed={["product_demo_manager", "demo_manager", "super_admin"]}><ProductDemoManagerPage /></RequireRole>} />
@@ -285,9 +596,9 @@ const App = () => (
               <Route path="/reseller-manager" element={<RequireRole allowed={["reseller_manager", "super_admin"]}><SecureResellerManagerDashboard /></RequireRole>} />
               <Route path="/reseller-manager-secure" element={<RequireRole allowed={["reseller_manager", "super_admin"]}><SecureResellerManagerDashboard /></RequireRole>} />
               
-              {/* Sales & Support Manager Routes (enum roles: client_success/support) */}
-              <Route path="/sales-support-manager" element={<RequireRole allowed={["client_success", "support", "super_admin"]}><SecureSalesSupportManagerDashboard /></RequireRole>} />
-              <Route path="/sales-support-manager-secure" element={<RequireRole allowed={["client_success", "support", "super_admin"]}><SecureSalesSupportManagerDashboard /></RequireRole>} />
+              {/* Sales & Support Manager Routes */}
+              <Route path="/sales-support-manager" element={<RequireRole allowed={["sales_support_manager", "super_admin"]}><SecureSalesSupportManagerDashboard /></RequireRole>} />
+              <Route path="/sales-support-manager-secure" element={<RequireRole allowed={["sales_support_manager", "super_admin"]}><SecureSalesSupportManagerDashboard /></RequireRole>} />
               
               {/* Public demo route for Influencer Command Center */}
               <Route path="/demo/influencer-command-center" element={<InfluencerCommandCenter />} />
@@ -323,7 +634,7 @@ const App = () => (
               <Route path="/task-manager-secure" element={<RequireRole allowed={["task_manager", "super_admin"]}><SecureTaskManagerDashboard /></RequireRole>} />
               
               {/* Secure Legal Manager Dashboard */}
-              <Route path="/legal-manager-secure" element={<RequireRole allowed={["legal_compliance", "super_admin"]}><SecureLegalManagerDashboard /></RequireRole>} />
+              <Route path="/legal-manager-secure" element={<RequireRole allowed={["legal_manager", "super_admin"]}><SecureLegalManagerDashboard /></RequireRole>} />
               <Route path="/seo" element={<RequireRole allowed={["seo_manager", "super_admin"]}><SEODashboard /></RequireRole>} />
               <Route path="/seo/*" element={<RequireRole allowed={["seo_manager", "super_admin"]}><SEODashboard /></RequireRole>} />
               <Route path="/seo-dashboard" element={<RequireRole allowed={["seo_manager", "super_admin"]}><SEODashboard /></RequireRole>} />
@@ -336,9 +647,8 @@ const App = () => (
               <Route path="/sales/*" element={<RequireRole allowed={["support", "super_admin"]}><SalesSupportDashboard /></RequireRole>} />
               <Route path="/client-success" element={<RequireRole allowed={["client_success", "super_admin"]}><ClientSuccessDashboard /></RequireRole>} />
               <Route path="/clients/*" element={<RequireRole allowed={["client_success", "super_admin"]}><ClientSuccessDashboard /></RequireRole>} />
-              {/* Incident / crisis routes (no dedicated enum; restrict to super_admin + boss_owner) */}
-              <Route path="/incident-crisis" element={<RequireRole allowed={["boss_owner", "super_admin"]}><IncidentCrisisDashboard /></RequireRole>} />
-              <Route path="/crisis/*" element={<RequireRole allowed={["boss_owner", "super_admin"]}><IncidentCrisisDashboard /></RequireRole>} />
+              <Route path="/incident-crisis" element={<RequireRole allowed={["incident_crisis", "super_admin"]}><IncidentCrisisDashboard /></RequireRole>} />
+              <Route path="/crisis/*" element={<RequireRole allowed={["incident_crisis", "super_admin"]}><IncidentCrisisDashboard /></RequireRole>} />
               <Route path="/hr-dashboard" element={<RequireRole allowed={["hr_manager", "super_admin"]}><HRDashboard /></RequireRole>} />
               <Route path="/ai/*" element={<RequireRole allowed={["ai_manager", "super_admin"]}><AIOptimizationConsole /></RequireRole>} />
 
@@ -445,8 +755,4 @@ const App = () => (
   </QueryClientProvider>
 );
 
-=======
->>>>>>> 0fb3bd24aec7b9ae3ccd7d8f8624af782e7e50eb
 export default App;
-
-// Other necessary updates such as role arrays and removing class

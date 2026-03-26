@@ -10,11 +10,7 @@ import { withAuth, RequestContext } from "../_shared/middleware.ts";
 
 serve(async (req: Request) => {
   const url = new URL(req.url);
-  // Normalize path for function name "api-chat" and legacy "/api/chat" proxy
-  const path = url.pathname
-    .replace("/functions/v1/api-chat", "")
-    .replace("/api-chat", "")
-    .replace("/api/chat", "");
+  const path = url.pathname.replace("/api/chat", "");
 
   // POST /chat/send (masked, no edit/delete allowed)
   if (path === "/send" && req.method === "POST") {
