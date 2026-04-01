@@ -269,7 +269,7 @@ export const usePerformanceMonitor = (): PerformanceResult => {
   }, [metrics]);
 
   const logPerformance = useCallback((label: string, duration: number) => {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.log(`[Performance] ${label}: ${duration.toFixed(2)}ms`);
     }
   }, []);
