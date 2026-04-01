@@ -89,7 +89,7 @@ export const UniversalClickWrapper: React.FC<UniversalClickWrapperProps> = ({
   }, [elementId, onClick, context, executeAction, isLoading, isLocked, disabled, lockedTooltip]);
 
   // Warn about unmapped elements in development
-  if (!actionExists && process.env.NODE_ENV === 'development') {
+  if (!actionExists && import.meta.env.DEV) {
     console.warn(`[CLICK_AUDIT] Element "${elementId}" has no action mapped`);
   }
 
