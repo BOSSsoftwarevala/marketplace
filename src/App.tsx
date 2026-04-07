@@ -40,6 +40,7 @@ import AccessDenied from "./pages/auth/AccessDenied";
 import PendingApproval from "./pages/auth/PendingApproval";
 import BossFortressAuth from "./pages/auth/BossFortressAuth";
 import BossRegister from "./pages/auth/BossRegister";
+import BossBlinkLogin from "./pages/auth/BossBlinkLogin";
 import EasyAuth from "./pages/auth/EasyAuth";
 import RoleBasedLogin from "./pages/auth/RoleBasedLogin";
 import SessionExpiredPage from "./pages/error/SessionExpiredPage";
@@ -451,7 +452,7 @@ const App = () => (
               {/* Boss Fortress Auth - Ultra Secure */}
               <Route path="/boss-fortress" element={<BossFortressAuth />} />
               <Route path="/boss-register" element={<BossRegister />} />
-              <Route path="/boss/login" element={<SuperAdminLogin />} />
+              <Route path="/boss/login" element={<BossBlinkLogin />} />
 
               {/* Owner Dashboard - SoftwareWala Business Control */}
               <Route path="/owner" element={<RequireRole allowed={["boss_owner"]}><SoftwareWalaOwnerDashboard /></RequireRole>} />
