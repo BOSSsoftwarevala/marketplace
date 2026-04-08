@@ -10,6 +10,9 @@ import {
 } from 'lucide-react';
 import { PricingBanner } from '@/components/landing/PricingBanner';
 import { LanguageSwitcher } from '@/components/landing/LanguageSwitcher';
+import HeroCarousel from '@/components/marketplace/HeroCarousel';
+import FestiveBanner from '@/components/marketplace/FestiveBanner';
+import CategorySlider from '@/components/marketplace/CategorySlider';
 
 const SimpleLanding = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -357,6 +360,15 @@ const SimpleLanding = () => {
           </motion.div>
         </motion.div>
       </section>
+
+      {/* Netflix-style Hero Carousel */}
+      <HeroCarousel />
+
+      {/* Festive Banner */}
+      <FestiveBanner />
+
+      {/* Category Slider */}
+      <CategorySlider />
 
       {/* Pricing Banner - HIGHLIGHTED */}
       <PricingBanner />
