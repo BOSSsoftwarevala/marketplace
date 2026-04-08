@@ -44,7 +44,7 @@ const FestiveBanner = () => {
         const d = data[0];
         setOffer({
           id: d.id,
-          festival_name: d.offer_name || 'Special Offer',
+          festival_name: d.event_name || 'Special Offer',
           discount_text: `Flat ${d.discount_percentage || 50}% OFF`,
           banner_text: d.description || 'Limited time offer on all products!',
           gradient: 'from-amber-500 via-orange-500 to-red-500',

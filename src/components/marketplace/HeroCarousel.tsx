@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Play, ArrowRight, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
+import { Play, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
 
 interface FeaturedProduct {
   id: string;
