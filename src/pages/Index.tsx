@@ -2566,6 +2566,15 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Netflix-style Featured Carousel */}
+      <HeroCarousel />
+
+      {/* Festive/Seasonal Banner */}
+      <FestiveBanner />
+
+      {/* Scrollable Category Slider */}
+      <CategorySlider />
+
       {/* Category Filter - Master Categories */}
       <div className="bg-[#0d1e36]/80 backdrop-blur-sm border-b border-cyan-500/20 py-4 px-4 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto">
