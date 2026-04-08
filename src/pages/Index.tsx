@@ -1,4 +1,7 @@
 import { useState } from "react";
+import HeroCarousel from "@/components/marketplace/HeroCarousel";
+import FestiveBanner from "@/components/marketplace/FestiveBanner";
+import CategorySlider from "@/components/marketplace/CategorySlider";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -2562,6 +2565,15 @@ const Index = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Netflix-style Featured Carousel */}
+      <HeroCarousel />
+
+      {/* Festive/Seasonal Banner */}
+      <FestiveBanner />
+
+      {/* Scrollable Category Slider */}
+      <CategorySlider />
 
       {/* Category Filter - Master Categories */}
       <div className="bg-[#0d1e36]/80 backdrop-blur-sm border-b border-cyan-500/20 py-4 px-4 sticky top-0 z-40">
