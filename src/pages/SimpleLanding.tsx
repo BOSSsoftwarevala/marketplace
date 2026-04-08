@@ -361,6 +361,15 @@ const SimpleLanding = () => {
         </motion.div>
       </section>
 
+      {/* Netflix-style Hero Carousel */}
+      <HeroCarousel />
+
+      {/* Festive Banner */}
+      <FestiveBanner />
+
+      {/* Category Slider */}
+      <CategorySlider />
+
       {/* Pricing Banner - HIGHLIGHTED */}
       <PricingBanner />
 
