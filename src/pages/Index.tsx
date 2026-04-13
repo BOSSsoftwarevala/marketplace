@@ -2541,13 +2541,6 @@ const Index = () => {
             <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 mb-4">
               <Star className="h-3 w-3 mr-1" /> 20 Master Categories • 147 Software Solutions • 20 Live Demos
             </Badge>
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Complete <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-400">Business Software</span> Marketplace
-            </h2>
-            <p className="text-gray-400 text-lg max-w-3xl mx-auto mb-8">
-              Premium enterprise solutions across Education, Healthcare, Finance, Retail, Logistics & more.
-              Start your business today with our ready-to-deploy software!
-            </p>
             <div className="flex flex-wrap justify-center gap-4 mb-8">
               <div className="flex items-center gap-2 text-emerald-400">
                 <CheckCircle className="h-5 w-5" /> Full Source Code
@@ -2591,25 +2584,6 @@ const Index = () => {
             <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
               {filteredDemos.length} Products
             </Badge>
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            {masterCategories.map(cat => (
-              <Button
-                key={cat}
-                variant={activeCategory === cat ? "default" : "outline"}
-                size="sm"
-                onClick={() => setActiveCategory(cat)}
-                className={activeCategory === cat 
-                  ? "bg-cyan-500 text-white hover:bg-cyan-600" 
-                  : "border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/10 hover:text-cyan-200"
-                }
-              >
-                {cat === "All" ? `All (${getCategoryCount(cat)})` : cat}
-                {cat !== "All" && (
-                  <span className="ml-1 text-xs opacity-70">({getCategoryCount(cat)})</span>
-                )}
-              </Button>
-            ))}
           </div>
         </div>
       </div>
