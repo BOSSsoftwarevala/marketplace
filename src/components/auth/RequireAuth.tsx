@@ -2,6 +2,7 @@ import { ReactNode, forwardRef } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
+import { isDemoMode } from "@/utils/demoMode";
 
 type RequireAuthProps = {
   children: ReactNode;
@@ -10,6 +11,11 @@ type RequireAuthProps = {
 const RequireAuth = forwardRef<HTMLDivElement, RequireAuthProps>(
   ({ children }, ref) => {
     const { user, loading } = useAuth();
+
+    // Demo mode bypass
+    if (isDemoMode()) {
+      return <div ref={ref}>{children}</div>;
+    }
 
     if (loading) {
       return (
