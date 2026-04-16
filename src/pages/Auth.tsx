@@ -308,8 +308,19 @@ const Auth = () => {
             </button>
           </p>
 
-          {/* Back to Home */}
+          {/* Demo Login */}
           <div className="text-center mt-4">
+            <Link 
+              to="/demo-login" 
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 transition-all text-sm font-medium"
+            >
+              <Zap className="w-4 h-4" />
+              Demo Login — One Click Access
+            </Link>
+          </div>
+
+          {/* Back to Home */}
+          <div className="text-center mt-3">
             <Link to="/" className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
               <ArrowLeft className="w-3 h-3" />
               Back to Home
