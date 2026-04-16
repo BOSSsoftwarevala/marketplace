@@ -425,7 +425,7 @@ const App = () => (
               <Route path="/checkout/:demoId" element={<SimpleCheckout />} />
               <Route path="/user-dashboard" element={<SimpleUserDashboard />} />
               <Route path="/user/dashboard" element={<RequireAuth><UserDashboard /></RequireAuth>} />
-              <Route path="/demo-login" element={<DemoLogin />} />
+              <Route path="/demo-login" element={<Navigate to="/auth" replace />} />
               <Route path="/showcase" element={<Index />} />
               <Route path="/premium-demos" element={<PremiumDemoShowcase />} />
               
@@ -434,11 +434,11 @@ const App = () => (
               <Route path="/get-started" element={<ClientPortal />} />
 
               {/* Global Auth Routes */}
-              <Route path="/login" element={<RoleBasedLogin />} />
-              <Route path="/role-login" element={<RoleBasedLogin />} />
+              <Route path="/login" element={<Navigate to="/auth" replace />} />
+              <Route path="/role-login" element={<Navigate to="/auth" replace />} />
               <Route path="/register" element={<Navigate to="/auth" replace />} />
-              <Route path="/easy-login" element={<EasyAuth />} />
-              <Route path="/quick-signup" element={<EasyAuth />} />
+              <Route path="/easy-login" element={<Navigate to="/auth" replace />} />
+              <Route path="/quick-signup" element={<Navigate to="/auth" replace />} />
               <Route path="/logout" element={<Logout />} />
               <Route path="/otp-verify" element={<OTPVerify />} />
               <Route path="/device-verify" element={<DeviceVerify />} />
@@ -449,10 +449,10 @@ const App = () => (
               <Route path="/access-denied" element={<AccessDenied />} />
               <Route path="/session-expired" element={<SessionExpiredPage />} />
 
-              {/* Boss Fortress Auth - Ultra Secure */}
-              <Route path="/boss-fortress" element={<BossFortressAuth />} />
-              <Route path="/boss-register" element={<BossRegister />} />
-              <Route path="/boss/login" element={<BossBlinkLogin />} />
+              {/* Boss Auth redirects to unified auth */}
+              <Route path="/boss-fortress" element={<Navigate to="/auth" replace />} />
+              <Route path="/boss-register" element={<Navigate to="/auth" replace />} />
+              <Route path="/boss/login" element={<Navigate to="/auth" replace />} />
 
               {/* Owner Dashboard - SoftwareWala Business Control */}
               <Route path="/owner" element={<RequireRole allowed={["boss_owner"]}><SoftwareWalaOwnerDashboard /></RequireRole>} />
