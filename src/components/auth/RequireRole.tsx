@@ -3,6 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { isDemoMode, getDemoRole } from "@/utils/demoMode";
 
 type RequireRoleProps = {
   allowed: string[];
@@ -83,6 +84,11 @@ export default function RequireRole({ allowed, children, masterOnly = false }: R
       logUnauthorizedAccess(user.id, userRole, location.pathname, reason);
     }
   }, [user, userRole, loading, approvalStatus, isBossOwner, masterOnly, allowed, location.pathname]);
+
+  // Demo mode bypass - allow access when demo is active
+  if (isDemoMode() && getDemoRole()) {
+    return <>{children}</>;
+  }
 
   if (loading) {
     return (

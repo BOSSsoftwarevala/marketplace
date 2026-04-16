@@ -12,8 +12,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { activateDemoMode } from '@/utils/demoMode';
 
 interface DemoAccount {
   id: string;
@@ -440,37 +440,23 @@ const DemoLogin = () => {
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [successId, setSuccessId] = useState<string | null>(null);
 
-  const handleDemoLogin = async (account: DemoAccount) => {
+  const handleDemoLogin = (account: DemoAccount) => {
     setLoadingId(account.id);
     
-    try {
-      await supabase.auth.signOut();
-      
-      const { error } = await supabase.auth.signInWithPassword({
-        email: account.email,
-        password: account.password,
-      });
+    // Activate demo mode - no real auth needed
+    activateDemoMode({
+      id: account.id,
+      role: account.id,
+      email: account.email,
+      name: account.role,
+    });
 
-      if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          toast.error(`Demo account not created yet: ${account.email}`);
-        } else {
-          toast.error(error.message);
-        }
-        setLoadingId(null);
-        return;
-      }
-
-      setSuccessId(account.id);
-      toast.success(`✅ Logged in as ${account.role}`);
-      
-      setTimeout(() => {
-        navigate(account.redirectPath);
-      }, 500);
-    } catch {
-      toast.error('Login failed');
-      setLoadingId(null);
-    }
+    setSuccessId(account.id);
+    toast.success(`✅ Logged in as ${account.role}`);
+    
+    setTimeout(() => {
+      navigate(account.redirectPath);
+    }, 600);
   };
 
   const getTierLabel = (tier: string) => {
