@@ -1,13 +1,10 @@
-import React from 'react';
-import DashboardLayout from '@/components/layouts/DashboardLayout';
-import { AssistManagerScreen } from '@/components/wireframe/screens/AssistManagerScreen';
+/**
+ * Assist Manager Dashboard
+ * Wraps the full AM layout (sidebar + 13 screens). No auth-gated DashboardLayout
+ * so demo-mode users see the complete UI immediately.
+ */
+import AMFullLayout from '@/components/assist-manager/AMFullLayout';
 
-const AssistManagerDashboard = () => {
-  return (
-    <DashboardLayout>
-      <AssistManagerScreen />
-    </DashboardLayout>
-  );
-};
-
-export default AssistManagerDashboard;
+export default function AssistManagerDashboard() {
+  return <AMFullLayout />;
+}

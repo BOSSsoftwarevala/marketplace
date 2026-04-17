@@ -130,7 +130,7 @@ import ComplianceCenter from "./pages/super-admin/ComplianceCenter";
 import MasterAdminDashboard from "./pages/master-admin/MasterAdminDashboard";
 import MasterControlCenter from "./pages/master-control/MasterControlCenter";
 import MasterAdminSupreme from "./pages/master-admin-supreme/MasterAdminSupreme";
-import SoftwareWalaOwnerDashboard from "./pages/owner/SoftwareWalaOwnerDashboard";
+// Boss Owner dashboard removed permanently per product decision
 import BootstrapAdmins from "./pages/admin/BootstrapAdmins";
 import RoleManagerPage from "./pages/admin/RoleManagerPage";
 
@@ -455,9 +455,10 @@ const App = () => (
               <Route path="/boss/login" element={<Navigate to="/auth" replace />} />
 
               {/* Owner Dashboard - SoftwareWala Business Control */}
-              <Route path="/owner" element={<RequireRole allowed={["boss_owner"]}><SoftwareWalaOwnerDashboard /></RequireRole>} />
-              <Route path="/owner/*" element={<RequireRole allowed={["boss_owner"]}><SoftwareWalaOwnerDashboard /></RequireRole>} />
-              <Route path="/softwarewala" element={<RequireRole allowed={["boss_owner"]}><SoftwareWalaOwnerDashboard /></RequireRole>} />
+              {/* Boss Owner dashboard removed — redirect any legacy links to AI CEO */}
+              <Route path="/owner" element={<Navigate to="/ai-ceo" replace />} />
+              <Route path="/owner/*" element={<Navigate to="/ai-ceo" replace />} />
+              <Route path="/softwarewala" element={<Navigate to="/ai-ceo" replace />} />
 
               {/* Boss Admin Routes - BOSS_OWNER ONLY */}
               <Route path="/master-admin" element={<RequireRole allowed={["boss_owner"]}><MasterControlCenter /></RequireRole>} />
