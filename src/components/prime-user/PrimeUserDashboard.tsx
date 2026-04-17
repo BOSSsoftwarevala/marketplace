@@ -45,6 +45,7 @@ import {
 import PrimeVIPBadge from './PrimeVIPBadge';
 import SafeAssistConsentModal from '@/components/user/SafeAssistConsentModal';
 import { supabase } from '@/integrations/supabase/client';
+import { isDemoMode } from '@/utils/demoMode';
 
 // Tier configuration for display
 const TIER_DISPLAY = {
@@ -106,7 +107,7 @@ export function PrimeUserDashboard() {
     navigate('/auth', { replace: true });
   };
 
-  if (profileLoading) {
+  if (profileLoading && !isDemoMode()) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <motion.div

@@ -92,11 +92,9 @@ interface DemoAccount {
 }
 
 const DEMO_ACCOUNTS: DemoAccount[] = [
-  { id: 'boss_owner', role: 'Boss Owner', icon: Crown, color: 'from-yellow-500 to-amber-600', redirectPath: '/owner', tier: 'owner' },
   { id: 'ceo', role: 'AI CEO', icon: Bot, color: 'from-purple-600 to-indigo-700', redirectPath: '/ai-ceo', tier: 'owner' },
   { id: 'master', role: 'Master Admin', icon: Crown, color: 'from-purple-500 to-purple-700', redirectPath: '/master-admin', tier: 'master' },
   { id: 'super_admin', role: 'Super Admin', icon: Shield, color: 'from-amber-500 to-orange-600', redirectPath: '/super-admin', tier: 'admin' },
-  { id: 'admin', role: 'Admin', icon: Users, color: 'from-blue-500 to-blue-700', redirectPath: '/dashboard', tier: 'admin' },
   { id: 'server_manager', role: 'Server Manager', icon: Server, color: 'from-slate-500 to-slate-700', redirectPath: '/server-manager', tier: 'manager' },
   { id: 'franchise', role: 'Franchise', icon: Briefcase, color: 'from-emerald-500 to-emerald-700', redirectPath: '/franchise', tier: 'manager' },
   { id: 'reseller', role: 'Reseller', icon: Store, color: 'from-teal-500 to-teal-700', redirectPath: '/reseller', tier: 'manager' },
@@ -115,12 +113,13 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
   { id: 'ai_manager', role: 'AI Manager', icon: Zap, color: 'from-cyan-500 to-blue-700', redirectPath: '/api-manager', tier: 'manager' },
   { id: 'reseller_manager', role: 'Reseller Mgr', icon: Store, color: 'from-emerald-600 to-teal-700', redirectPath: '/reseller-manager', tier: 'manager' },
   { id: 'sales_support_manager', role: 'Sales Support', icon: TrendingUp, color: 'from-blue-600 to-indigo-700', redirectPath: '/sales-support-manager', tier: 'manager' },
-  { id: 'influencer_manager', role: 'Influencer Mgr', icon: Star, color: 'from-pink-600 to-rose-700', redirectPath: '/influencer-manager-secure', tier: 'manager' },
+  { id: 'influencer_manager', role: 'Creator Ops Manager', icon: Megaphone, color: 'from-pink-600 to-rose-700', redirectPath: '/influencer-manager-secure', tier: 'manager' },
   { id: 'assist_manager', role: 'Assist Mgr', icon: HandMetal, color: 'from-sky-600 to-blue-700', redirectPath: '/assist-manager', tier: 'manager' },
   { id: 'promise_management', role: 'Promise Mgmt', icon: FileCheck, color: 'from-teal-600 to-emerald-700', redirectPath: '/promise-management', tier: 'manager' },
   { id: 'developer', role: 'Developer', icon: Code, color: 'from-violet-500 to-violet-700', redirectPath: '/developer', tier: 'staff' },
-  { id: 'influencer', role: 'Influencer', icon: Star, color: 'from-pink-500 to-pink-700', redirectPath: '/influencer', tier: 'staff' },
+  { id: 'influencer', role: 'Creator / Influencer', icon: Star, color: 'from-pink-500 to-pink-700', redirectPath: '/influencer', tier: 'staff' },
   { id: 'prime', role: 'Prime User', icon: Crown, color: 'from-amber-500 to-yellow-600', redirectPath: '/prime', tier: 'staff' },
+  { id: 'user', role: 'User', icon: User, color: 'from-blue-400 to-blue-600', redirectPath: '/user-dashboard', tier: 'staff' },
   { id: 'client', role: 'Client', icon: Users, color: 'from-blue-500 to-cyan-600', redirectPath: '/client-portal', tier: 'staff' },
   { id: 'support', role: 'Support', icon: Headphones, color: 'from-green-500 to-emerald-700', redirectPath: '/support', tier: 'staff' },
   { id: 'client_success', role: 'Client Success', icon: MessageSquare, color: 'from-indigo-500 to-blue-700', redirectPath: '/client-success', tier: 'staff' },
