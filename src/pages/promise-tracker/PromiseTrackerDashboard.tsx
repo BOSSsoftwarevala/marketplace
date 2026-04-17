@@ -1,13 +1,10 @@
-import React from 'react';
-import DashboardLayout from '@/components/layouts/DashboardLayout';
-import { PromiseTrackerScreen } from '@/components/wireframe/screens/PromiseTrackerScreen';
+/**
+ * Promise Tracker Dashboard
+ * Wraps the full PT layout (sidebar + 14 screens). No auth-gated DashboardLayout
+ * so demo-mode users see the complete UI immediately.
+ */
+import PTFullLayout from '@/components/promise-tracker/PTFullLayout';
 
-const PromiseTrackerDashboard = () => {
-  return (
-    <DashboardLayout>
-      <PromiseTrackerScreen />
-    </DashboardLayout>
-  );
-};
-
-export default PromiseTrackerDashboard;
+export default function PromiseTrackerDashboard() {
+  return <PTFullLayout />;
+}
