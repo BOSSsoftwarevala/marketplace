@@ -25,15 +25,10 @@ interface ClientSuccessSidebarProps {
   userName?: string;
 }
 
+// Client Success-only modules — unrelated roles removed
 const menuItems = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-  { id: "lead-manager", label: "Lead Manager", icon: Users, path: "/lead-manager" },
-  { id: "task-manager", label: "Task Manager", icon: ListTodo, path: "/task-manager" },
-  { id: "client-success", label: "Client Success", icon: Heart, path: "/client-success", active: true },
-  { id: "wallet", label: "Wallet", icon: Wallet, path: "/wallet" },
+  { id: "client-success", label: "Client Success Hub", icon: Heart, path: "/client-success", active: true },
   { id: "notifications", label: "Notifications", icon: Bell, path: "/notifications", badge: 8 },
-  { id: "performance", label: "Performance", icon: BarChart3, path: "/performance" },
-  { id: "rnd", label: "R&D", icon: Lightbulb, path: "/rnd-dashboard" },
   { id: "profile", label: "Profile", icon: User, path: "/profile" },
 ];
 
