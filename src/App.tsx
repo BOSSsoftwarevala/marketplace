@@ -355,6 +355,14 @@ const App = () => (
                           <SystemNotificationsInitializer />
                           <GlobalOfferPopup />
                           <FloatingAIChatbotWrapper />
+                          <Suspense fallback={
+                            <div className="min-h-screen w-full flex items-center justify-center bg-slate-950 text-slate-200">
+                              <div className="flex flex-col items-center gap-3">
+                                <div className="h-10 w-10 rounded-full border-2 border-slate-700 border-t-cyan-400 animate-spin" />
+                                <p className="text-sm text-slate-400">Loading dashboard…</p>
+                              </div>
+                            </div>
+                          }>
                           <Routes>
                           {/* Public Routes - No login required */}
               <Route path="/" element={<Index />} />
@@ -744,6 +752,7 @@ const App = () => (
                           {/* Catch-all */}
                           <Route path="*" element={<NotFound />} />
                         </Routes>
+                          </Suspense>
                         <AdminQuickAccess />
                         <QuickSupport />
                         {/* Button Audit Overlay - DEV MODE ONLY */}
