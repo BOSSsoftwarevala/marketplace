@@ -1,4 +1,4 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import InfluencerCommandCenter from "@/pages/InfluencerCommandCenter";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -283,9 +283,10 @@ import PromiseManagementDashboard from "./pages/promise-management/PromiseManage
 import { WireframeRoutes } from "./components/wireframe/WireframeRoutes";
 // Vala Control System
 import ValaControlCenter from "./pages/vala-control/ValaControlCenter";
-// Super Admin System
+// Super Admin System — RoleSwitchDashboard is lazy-loaded because it pulls in
+// 30+ heavy role view modules. Loading it eagerly in every route caused a
+// single chunk-load failure to blank the entire app (e.g. /user-dashboard).
 import {
-  RoleSwitchDashboard,
   SuperAdminLogin,
   SuperAdminDashboard as SuperAdminSystemDashboard,
   SuperAdminUsers,
@@ -301,6 +302,9 @@ import {
   SuperAdminActivityLog,
   SuperAdminAudit
 } from "./pages/super-admin-system";
+const RoleSwitchDashboard = lazy(() =>
+  import("./pages/super-admin-system/RoleSwitch/RoleSwitchDashboard")
+);
 
 // Leader Security Assessment
 import LeaderSecurityAssessment from "./pages/leader-security/LeaderSecurityAssessment";
