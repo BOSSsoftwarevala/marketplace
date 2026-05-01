@@ -31,7 +31,7 @@ const LMEnterpriseManager = () => {
         activeSection={activeSection} 
         onSectionChange={setActiveSection} 
       />
-      <main className="ml-64 p-6">
+      <main className="ml-0 lg:ml-64 p-4 sm:p-6 min-w-0">
         <motion.div
           key={activeSection}
           initial={{ opacity: 0, y: 10 }}
