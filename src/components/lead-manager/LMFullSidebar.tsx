@@ -251,7 +251,7 @@ const LMFullSidebar = ({ activeSection, onSectionChange }: LMFullSidebarProps) =
     <motion.aside
       initial={{ x: -100, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      className="fixed left-0 top-0 h-screen w-64 bg-card border-r border-border flex flex-col z-50"
+      className="fixed left-0 top-0 h-screen w-64 bg-card border-r border-border flex-col z-50 hidden lg:flex"
     >
       {/* Back Button */}
       <div className="p-2 border-b border-border">
