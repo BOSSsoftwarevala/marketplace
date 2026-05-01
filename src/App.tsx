@@ -1,4 +1,4 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import InfluencerCommandCenter from "@/pages/InfluencerCommandCenter";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -283,9 +283,10 @@ import PromiseManagementDashboard from "./pages/promise-management/PromiseManage
 import { WireframeRoutes } from "./components/wireframe/WireframeRoutes";
 // Vala Control System
 import ValaControlCenter from "./pages/vala-control/ValaControlCenter";
-// Super Admin System
+// Super Admin System — RoleSwitchDashboard is lazy-loaded because it pulls in
+// 30+ heavy role view modules. Loading it eagerly in every route caused a
+// single chunk-load failure to blank the entire app (e.g. /user-dashboard).
 import {
-  RoleSwitchDashboard,
   SuperAdminLogin,
   SuperAdminDashboard as SuperAdminSystemDashboard,
   SuperAdminUsers,
@@ -301,6 +302,9 @@ import {
   SuperAdminActivityLog,
   SuperAdminAudit
 } from "./pages/super-admin-system";
+const RoleSwitchDashboard = lazy(() =>
+  import("./pages/super-admin-system/RoleSwitch/RoleSwitchDashboard")
+);
 
 // Leader Security Assessment
 import LeaderSecurityAssessment from "./pages/leader-security/LeaderSecurityAssessment";
@@ -351,6 +355,14 @@ const App = () => (
                           <SystemNotificationsInitializer />
                           <GlobalOfferPopup />
                           <FloatingAIChatbotWrapper />
+                          <Suspense fallback={
+                            <div className="min-h-screen w-full flex items-center justify-center bg-slate-950 text-slate-200">
+                              <div className="flex flex-col items-center gap-3">
+                                <div className="h-10 w-10 rounded-full border-2 border-slate-700 border-t-cyan-400 animate-spin" />
+                                <p className="text-sm text-slate-400">Loading dashboard…</p>
+                              </div>
+                            </div>
+                          }>
                           <Routes>
                           {/* Public Routes - No login required */}
               <Route path="/" element={<Index />} />
@@ -740,6 +752,7 @@ const App = () => (
                           {/* Catch-all */}
                           <Route path="*" element={<NotFound />} />
                         </Routes>
+                          </Suspense>
                         <AdminQuickAccess />
                         <QuickSupport />
                         {/* Button Audit Overlay - DEV MODE ONLY */}

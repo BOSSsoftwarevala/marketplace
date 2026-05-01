@@ -110,11 +110,11 @@ const APIManagerDashboard: React.FC = () => {
                 onClick={() => handleNavigation(item.id)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
                   isActive
-                    ? 'bg-primary/20 text-primary border border-primary/30'
-                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                    ? 'bg-white/15 text-white border border-white/30 font-medium shadow-sm'
+                    : 'text-white/80 hover:bg-white/10 hover:text-white'
                 }`}
               >
-                <Icon className={`h-4 w-4 ${isActive ? 'text-primary' : ''}`} />
+                <Icon className={`h-4 w-4 ${isActive ? 'text-white' : 'text-white/70'}`} />
                 <span>{item.label}</span>
               </button>
             );
