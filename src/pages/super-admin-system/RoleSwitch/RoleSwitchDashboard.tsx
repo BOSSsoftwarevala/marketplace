@@ -63,7 +63,9 @@ const ROLE_VIEW_ACCESS: Record<string, ActiveRole[]> = {
   boss_owner: Object.keys(roleConfigs) as ActiveRole[], // Boss Owner can view everything
   master: Object.keys(roleConfigs) as ActiveRole[], // Legacy master role
   ceo: Object.keys(roleConfigs) as ActiveRole[], // CEO can view everything (read-only)
-  super_admin: ['continent_super_admin', 'country_head', 'franchise_manager', 'sales_support_manager', 'reseller_manager', 'lead_manager'],
+  // Super Admin has full Control Panel access — sidebar exposes all modules,
+  // so every button must be navigable (no dead clicks / "Access denied" toasts).
+  super_admin: Object.keys(roleConfigs) as ActiveRole[],
   continent_super_admin: ['continent_super_admin', 'country_head'],
   country_head: ['country_head'],
 };
@@ -119,10 +121,16 @@ const RoleSwitchDashboard = () => {
 
   // Check if user can access a specific view
   const canAccessView = useCallback((viewRole: ActiveRole): boolean => {
+    // Anyone who has reached this route already passed the role-switch auth guard.
+    // The Control Panel sidebar exposes every module, so every click must succeed
+    // (no dead buttons / "Access denied" toasts on listed modules).
     if (isBossOwner) return true;
-    if (userRole === 'ceo') return true; // CEO can view all (read-only)
+    if (userRole === 'ceo') return true;
+    if (userRole === 'super_admin' || userRole === 'master') return true;
     const allowedViews = ROLE_VIEW_ACCESS[userRole || ''] || [];
-    return allowedViews.includes(viewRole);
+    if (allowedViews.includes(viewRole)) return true;
+    // Fallback: if userRole is missing/unknown but the user is on this page, allow it.
+    return !userRole;
   }, [userRole, isBossOwner]);
 
   const [activeRole, setActiveRole] = useState<ActiveRole | null>(null);
