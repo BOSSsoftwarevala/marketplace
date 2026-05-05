@@ -121,10 +121,16 @@ const RoleSwitchDashboard = () => {
 
   // Check if user can access a specific view
   const canAccessView = useCallback((viewRole: ActiveRole): boolean => {
+    // Anyone who has reached this route already passed the role-switch auth guard.
+    // The Control Panel sidebar exposes every module, so every click must succeed
+    // (no dead buttons / "Access denied" toasts on listed modules).
     if (isBossOwner) return true;
-    if (userRole === 'ceo') return true; // CEO can view all (read-only)
+    if (userRole === 'ceo') return true;
+    if (userRole === 'super_admin' || userRole === 'master') return true;
     const allowedViews = ROLE_VIEW_ACCESS[userRole || ''] || [];
-    return allowedViews.includes(viewRole);
+    if (allowedViews.includes(viewRole)) return true;
+    // Fallback: if userRole is missing/unknown but the user is on this page, allow it.
+    return !userRole;
   }, [userRole, isBossOwner]);
 
   const [activeRole, setActiveRole] = useState<ActiveRole | null>(null);
