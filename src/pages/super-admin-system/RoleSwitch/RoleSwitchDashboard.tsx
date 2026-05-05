@@ -63,7 +63,9 @@ const ROLE_VIEW_ACCESS: Record<string, ActiveRole[]> = {
   boss_owner: Object.keys(roleConfigs) as ActiveRole[], // Boss Owner can view everything
   master: Object.keys(roleConfigs) as ActiveRole[], // Legacy master role
   ceo: Object.keys(roleConfigs) as ActiveRole[], // CEO can view everything (read-only)
-  super_admin: ['continent_super_admin', 'country_head', 'franchise_manager', 'sales_support_manager', 'reseller_manager', 'lead_manager'],
+  // Super Admin has full Control Panel access — sidebar exposes all modules,
+  // so every button must be navigable (no dead clicks / "Access denied" toasts).
+  super_admin: Object.keys(roleConfigs) as ActiveRole[],
   continent_super_admin: ['continent_super_admin', 'country_head'],
   country_head: ['country_head'],
 };
