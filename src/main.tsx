@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { installClientErrorReporter } from "./lib/clientErrorReporter";
 
 // Emergency diagnostics + safety: if the app ever becomes "dead" (no clicks),
 // we want to know whether JS is running and whether pointer events reach document.
@@ -38,6 +39,9 @@ if (typeof window !== "undefined") {
     window.addEventListener("unhandledrejection", (ev) => {
       console.error("[GLOBAL_UNHANDLED_REJECTION]", (ev as PromiseRejectionEvent).reason);
     });
+
+    // Forward client-side errors to audit_logs (deduped, throttled, fail-safe)
+    installClientErrorReporter();
   } catch {
     // never block boot
   }
