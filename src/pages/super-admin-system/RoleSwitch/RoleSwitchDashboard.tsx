@@ -392,8 +392,32 @@ const RoleSwitchDashboard = () => {
     // Check if user can access this view
     if (!canAccessView(role)) {
       toast.error("Access denied to this view");
+      // Audit denied module open
+      void supabase.from("audit_logs").insert({
+        module: "super_admin_nav",
+        action: `module_open_denied:${role}`,
+        meta_json: {
+          role,
+          user_role: userRole,
+          path: window.location.pathname,
+          timestamp: new Date().toISOString(),
+        },
+      } as never);
       return;
     }
+
+    // Audit successful module open
+    void supabase.from("audit_logs").insert({
+      module: "super_admin_nav",
+      action: `module_open:${role}`,
+      meta_json: {
+        role,
+        label: roleConfigs[role]?.label,
+        user_role: userRole,
+        path: window.location.pathname,
+        timestamp: new Date().toISOString(),
+      },
+    } as never);
 
     // IMPORTANT: Avoid hard page reload (window.location.assign) because it causes
     // intermittent blank/white flashes while the browser reloads the JS bundle.
@@ -408,7 +432,7 @@ const RoleSwitchDashboard = () => {
     setSelectedSubItem(undefined);
 
     navigate(nextUrl, { replace: true });
-  }, [canAccessView, navigate]);
+  }, [canAccessView, navigate, userRole]);
 
   const handleNavChange = useCallback((navId: string) => {
     setActiveNav(navId);
