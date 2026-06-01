@@ -1,0 +1,8 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+  - 'services/*'
+
+shared-workspace-lockfile: true
+symlink-workspace-packages: true
+prefer-workspace-packages: true
