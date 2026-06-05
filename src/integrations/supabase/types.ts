@@ -13909,6 +13909,38 @@ export type Database = {
           },
         ]
       }
+      product_blogs: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          title: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          title: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          title?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_blogs_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
       product_demo_mappings: {
         Row: {
           demo_id: string
@@ -13941,6 +13973,41 @@ export type Database = {
           },
           {
             foreignKeyName: "product_demo_mappings_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
+      product_faqs: {
+        Row: {
+          answer: string
+          created_at: string
+          display_order: number | null
+          id: string
+          product_id: string
+          question: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          product_id: string
+          question: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          product_id?: string
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_faqs_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
@@ -14010,64 +14077,244 @@ export type Database = {
       }
       products: {
         Row: {
+          abuse_reported: boolean | null
+          additional_files: Json | null
+          blog_url: string | null
           business_category_id: string | null
+          canonical_url: string | null
           category: string | null
+          changelog: string | null
+          compatibility: string[] | null
+          conversion_count: number | null
+          coupon_code: string | null
           created_at: string
           created_by: string | null
+          deleted_at: string | null
+          demo_click_count: number | null
+          demo_credentials: Json | null
+          demo_embed: string | null
+          demo_type: string | null
+          demo_url: string | null
+          demo_video_url: string | null
           description: string | null
+          difficulty_level: string | null
+          discount_price: number | null
+          documentation_url: string | null
+          dynamic_pricing: Json | null
+          feature_list: string[] | null
+          featured_rank: number | null
           features_json: Json | null
+          gallery_urls: string[] | null
           has_broken_demo: boolean | null
+          industry_tags: string[] | null
+          installation_guide: string | null
           is_active: boolean | null
+          is_featured: boolean | null
+          is_free: boolean | null
+          is_new: boolean | null
+          is_subscription: boolean | null
+          keywords: string[] | null
+          last_updated_at: string | null
+          license_tier: string | null
+          license_type: string | null
           lifetime_price: number | null
+          main_file_url: string | null
+          manual_rank: number | null
+          meta_description: string | null
+          meta_title: string | null
           monthly_price: number | null
+          og_description: string | null
+          og_image: string | null
+          og_title: string | null
+          popular_score: number | null
+          preview_urls: string[] | null
           pricing_model: string | null
           product_id: string
           product_name: string
           product_type: string | null
+          release_notes: string | null
+          requirements: string | null
+          review_flagged: boolean | null
+          search_keywords: string[] | null
+          sections_json: Json | null
+          short_description: string | null
+          slug: string | null
           status: string | null
           subcategory_id: string | null
+          support_response_time: string | null
+          support_url: string | null
+          synonyms: string[] | null
+          tags: string[] | null
           tech_stack: string | null
+          tech_stack_tags: string[] | null
+          thumbnail_url: string | null
+          trending: boolean | null
           updated_at: string
+          use_case_tags: string[] | null
+          verified_author: boolean | null
+          version: string | null
+          video_thumbnail_url: string | null
+          view_count: number | null
         }
         Insert: {
+          abuse_reported?: boolean | null
+          additional_files?: Json | null
+          blog_url?: string | null
           business_category_id?: string | null
+          canonical_url?: string | null
           category?: string | null
+          changelog?: string | null
+          compatibility?: string[] | null
+          conversion_count?: number | null
+          coupon_code?: string | null
           created_at?: string
           created_by?: string | null
+          deleted_at?: string | null
+          demo_click_count?: number | null
+          demo_credentials?: Json | null
+          demo_embed?: string | null
+          demo_type?: string | null
+          demo_url?: string | null
+          demo_video_url?: string | null
           description?: string | null
+          difficulty_level?: string | null
+          discount_price?: number | null
+          documentation_url?: string | null
+          dynamic_pricing?: Json | null
+          feature_list?: string[] | null
+          featured_rank?: number | null
           features_json?: Json | null
+          gallery_urls?: string[] | null
           has_broken_demo?: boolean | null
+          industry_tags?: string[] | null
+          installation_guide?: string | null
           is_active?: boolean | null
+          is_featured?: boolean | null
+          is_free?: boolean | null
+          is_new?: boolean | null
+          is_subscription?: boolean | null
+          keywords?: string[] | null
+          last_updated_at?: string | null
+          license_tier?: string | null
+          license_type?: string | null
           lifetime_price?: number | null
+          main_file_url?: string | null
+          manual_rank?: number | null
+          meta_description?: string | null
+          meta_title?: string | null
           monthly_price?: number | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          popular_score?: number | null
+          preview_urls?: string[] | null
           pricing_model?: string | null
           product_id?: string
           product_name: string
           product_type?: string | null
+          release_notes?: string | null
+          requirements?: string | null
+          review_flagged?: boolean | null
+          search_keywords?: string[] | null
+          sections_json?: Json | null
+          short_description?: string | null
+          slug?: string | null
           status?: string | null
           subcategory_id?: string | null
+          support_response_time?: string | null
+          support_url?: string | null
+          synonyms?: string[] | null
+          tags?: string[] | null
           tech_stack?: string | null
+          tech_stack_tags?: string[] | null
+          thumbnail_url?: string | null
+          trending?: boolean | null
           updated_at?: string
+          use_case_tags?: string[] | null
+          verified_author?: boolean | null
+          version?: string | null
+          video_thumbnail_url?: string | null
+          view_count?: number | null
         }
         Update: {
+          abuse_reported?: boolean | null
+          additional_files?: Json | null
+          blog_url?: string | null
           business_category_id?: string | null
+          canonical_url?: string | null
           category?: string | null
+          changelog?: string | null
+          compatibility?: string[] | null
+          conversion_count?: number | null
+          coupon_code?: string | null
           created_at?: string
           created_by?: string | null
+          deleted_at?: string | null
+          demo_click_count?: number | null
+          demo_credentials?: Json | null
+          demo_embed?: string | null
+          demo_type?: string | null
+          demo_url?: string | null
+          demo_video_url?: string | null
           description?: string | null
+          difficulty_level?: string | null
+          discount_price?: number | null
+          documentation_url?: string | null
+          dynamic_pricing?: Json | null
+          feature_list?: string[] | null
+          featured_rank?: number | null
           features_json?: Json | null
+          gallery_urls?: string[] | null
           has_broken_demo?: boolean | null
+          industry_tags?: string[] | null
+          installation_guide?: string | null
           is_active?: boolean | null
+          is_featured?: boolean | null
+          is_free?: boolean | null
+          is_new?: boolean | null
+          is_subscription?: boolean | null
+          keywords?: string[] | null
+          last_updated_at?: string | null
+          license_tier?: string | null
+          license_type?: string | null
           lifetime_price?: number | null
+          main_file_url?: string | null
+          manual_rank?: number | null
+          meta_description?: string | null
+          meta_title?: string | null
           monthly_price?: number | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          popular_score?: number | null
+          preview_urls?: string[] | null
           pricing_model?: string | null
           product_id?: string
           product_name?: string
           product_type?: string | null
+          release_notes?: string | null
+          requirements?: string | null
+          review_flagged?: boolean | null
+          search_keywords?: string[] | null
+          sections_json?: Json | null
+          short_description?: string | null
+          slug?: string | null
           status?: string | null
           subcategory_id?: string | null
+          support_response_time?: string | null
+          support_url?: string | null
+          synonyms?: string[] | null
+          tags?: string[] | null
           tech_stack?: string | null
+          tech_stack_tags?: string[] | null
+          thumbnail_url?: string | null
+          trending?: boolean | null
           updated_at?: string
+          use_case_tags?: string[] | null
+          verified_author?: boolean | null
+          version?: string | null
+          video_thumbnail_url?: string | null
+          view_count?: number | null
         }
         Relationships: [
           {
