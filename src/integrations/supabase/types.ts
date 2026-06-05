@@ -8891,6 +8891,36 @@ export type Database = {
         }
         Relationships: []
       }
+      languages: {
+        Row: {
+          code: string
+          coverage_pct: number
+          enabled: boolean
+          name: string
+          native_name: string
+          rtl: boolean
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          coverage_pct?: number
+          enabled?: boolean
+          name: string
+          native_name: string
+          rtl?: boolean
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          coverage_pct?: number
+          enabled?: boolean
+          name?: string
+          native_name?: string
+          rtl?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lead_alerts: {
         Row: {
           acknowledged_at: string | null
@@ -11944,6 +11974,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      module_routes: {
+        Row: {
+          can_delete: boolean
+          can_edit: boolean
+          can_view: boolean
+          created_at: string
+          id: string
+          module_key: string
+          role_name: string
+          route_path: string
+        }
+        Insert: {
+          can_delete?: boolean
+          can_edit?: boolean
+          can_view?: boolean
+          created_at?: string
+          id?: string
+          module_key: string
+          role_name: string
+          route_path: string
+        }
+        Update: {
+          can_delete?: boolean
+          can_edit?: boolean
+          can_view?: boolean
+          created_at?: string
+          id?: string
+          module_key?: string
+          role_name?: string
+          route_path?: string
+        }
+        Relationships: []
       }
       otp_verifications: {
         Row: {
@@ -23119,6 +23182,115 @@ export type Database = {
         }
         Relationships: []
       }
+      translation_audit_logs: {
+        Row: {
+          action: string
+          actor: string | null
+          created_at: string
+          id: string
+          key_id: string | null
+          language_code: string | null
+          new_value: string | null
+          old_value: string | null
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          created_at?: string
+          id?: string
+          key_id?: string | null
+          language_code?: string | null
+          new_value?: string | null
+          old_value?: string | null
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          created_at?: string
+          id?: string
+          key_id?: string | null
+          language_code?: string | null
+          new_value?: string | null
+          old_value?: string | null
+        }
+        Relationships: []
+      }
+      translation_keys: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          namespace: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          namespace?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          namespace?: string
+        }
+        Relationships: []
+      }
+      translation_values: {
+        Row: {
+          id: string
+          key_id: string
+          language_code: string
+          status: string
+          updated_at: string
+          updated_by: string | null
+          value: string
+        }
+        Insert: {
+          id?: string
+          key_id: string
+          language_code: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          value: string
+        }
+        Update: {
+          id?: string
+          key_id?: string
+          language_code?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translation_values_key_id_fkey"
+            columns: ["key_id"]
+            isOneToOne: false
+            referencedRelation: "translation_keys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "translation_values_language_code_fkey"
+            columns: ["language_code"]
+            isOneToOne: false
+            referencedRelation: "languages"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "translation_values_language_code_fkey"
+            columns: ["language_code"]
+            isOneToOne: false
+            referencedRelation: "translation_coverage"
+            referencedColumns: ["language_code"]
+          },
+        ]
+      }
       trusted_devices: {
         Row: {
           browser: string | null
@@ -24494,6 +24666,27 @@ export type Database = {
           },
         ]
       }
+      translation_coverage: {
+        Row: {
+          coverage_pct: number | null
+          language_code: string | null
+          total_keys: number | null
+          translated_keys: number | null
+        }
+        Insert: {
+          coverage_pct?: never
+          language_code?: string | null
+          total_keys?: never
+          translated_keys?: never
+        }
+        Update: {
+          coverage_pct?: never
+          language_code?: string | null
+          total_keys?: never
+          translated_keys?: never
+        }
+        Relationships: []
+      }
       user_compliance_status: {
         Row: {
           active_penalties: number | null
@@ -24570,6 +24763,10 @@ export type Database = {
       can_access_finance: { Args: { _user_id: string }; Returns: boolean }
       can_access_internal_channel: {
         Args: { _channel_id: string; _user_id: string }
+        Returns: boolean
+      }
+      can_access_route: {
+        Args: { _route: string; _user_id: string }
         Returns: boolean
       }
       can_manage_demos: { Args: { _user_id: string }; Returns: boolean }
@@ -25057,6 +25254,10 @@ export type Database = {
         Returns: Json
       }
       normalize_demo_url: { Args: { url: string }; Returns: string }
+      refresh_language_coverage: {
+        Args: { _code?: string }
+        Returns: undefined
+      }
       reject_payout: {
         Args: { p_payout_id: string; p_reason?: string; p_rejector_id: string }
         Returns: Json
