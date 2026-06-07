@@ -6,13 +6,18 @@ export function useProtectedActionHandler() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // Accept either a function action or a string path to navigate to.
   const handle = useCallback(
-    (action: () => void | Promise<void>) => {
+    (action: any) => {
       if (!user) {
         navigate("/auth");
         return;
       }
-      void action();
+      if (typeof action === "function") {
+        void action();
+      } else if (typeof action === "string") {
+        navigate(action);
+      }
     },
     [user, navigate]
   );
