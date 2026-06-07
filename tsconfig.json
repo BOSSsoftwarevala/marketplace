@@ -22,6 +22,7 @@
     "noImplicitAny": false,
     "noFallthroughCasesInSwitch": false,
     "forceConsistentCasingInFileNames": true,
+    "types": ["node", "vite/client"],
     "paths": {
       "@/*": [
         "./src/*"
