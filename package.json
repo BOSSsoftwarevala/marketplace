@@ -1,6 +1,7 @@
 {
   "name": "ultra-software-vala",
   "version": "1.0.0",
+  "packageManager": "pnpm@8.0.0",
   "description": "Ultra Enterprise Software Factory - Consolidated Monorepo",
   "private": true,
   "type": "module",
