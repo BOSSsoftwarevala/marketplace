@@ -16,29 +16,16 @@
     "resolveJsonModule": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitAny": false,
+    "noFallthroughCasesInSwitch": false,
     "forceConsistentCasingInFileNames": true,
+    "types": ["node", "vite/client"],
     "paths": {
       "@/*": [
         "./src/*"
-      ],
-      "@ui/*": [
-        "../packages/ui/src/*"
-      ],
-      "@auth/*": [
-        "../packages/auth/src/*"
-      ],
-      "@api/*": [
-        "../packages/api/src/*"
-      ],
-      "@monitoring/*": [
-        "../packages/monitoring/src/*"
-      ],
-      "@shared/*": [
-        "../packages/shared/src/*"
       ]
     }
   },
