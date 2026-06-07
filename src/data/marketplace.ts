@@ -7,6 +7,14 @@ export interface MarketplaceProduct {
   description?: string;
   thumbnail?: string;
   tags?: string[];
+  url?: string;
+  icon?: any;
+  discountPrice?: string;
+  status?: string;
+  features?: string[];
+  frontend?: string;
+  backend?: string;
+  color?: string;
 }
 
 export const allMarketplaceProducts: MarketplaceProduct[] = [];

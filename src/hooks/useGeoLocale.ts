@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 
-export type GeoLocale = { country: string; currency: string; symbol: string; rate: number };
-const DEFAULT: GeoLocale = { country: "IN", currency: "INR", symbol: "₹", rate: 1 };
+export type GeoLocale = {
+  country: string;
+  countryName: string;
+  currency: string;
+  symbol: string;
+  rate: number;
+};
+const DEFAULT: GeoLocale = { country: "IN", countryName: "India", currency: "INR", symbol: "₹", rate: 1 };
 
 export function useGeoLocale(): GeoLocale {
   const [locale] = useState<GeoLocale>(DEFAULT);
@@ -15,9 +21,9 @@ export function parseINRPrice(price: string | number): number {
   return isNaN(n) ? 0 : n;
 }
 
-export function convertPrice(inr: number, locale: GeoLocale = DEFAULT): string {
-  const value = inr * (locale.rate || 1);
-  return `${locale.symbol}${Math.round(value).toLocaleString()}`;
+export function convertPrice(inr: number, _to?: string, _from?: string): string {
+  const value = inr * (DEFAULT.rate || 1);
+  return `${DEFAULT.symbol}${Math.round(value).toLocaleString()}`;
 }
 
 export default useGeoLocale;

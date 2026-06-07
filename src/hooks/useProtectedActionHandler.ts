@@ -17,7 +17,7 @@ export function useProtectedActionHandler() {
     [user, navigate]
   );
 
-  return { handle, isAuthenticated: !!user };
+  return { handle, handleAction: handle, isAuthenticated: !!user };
 }
 
 export default useProtectedActionHandler;
