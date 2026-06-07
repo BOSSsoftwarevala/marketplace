@@ -165,14 +165,14 @@ function App() {
                 <Route path="/notifications" element={<RequireAuth><NotificationBuzzerConsole /></RequireAuth>} />
 
                 {/* Boss / Owner / Super Admin */}
-                <Route path="/boss" element={<RequireRole allowedRoles={["boss_owner"]}><BossPanel /></RequireRole>} />
-                <Route path="/owner" element={<RequireRole allowedRoles={["boss_owner"]}><SoftwareWalaOwnerDashboard /></RequireRole>} />
-                <Route path="/super-admin" element={<RequireRole allowedRoles={["boss_owner", "super_admin"]}><SuperAdminDashboard /></RequireRole>} />
+                <Route path="/boss" element={<RequireRole allowed={["boss_owner"]}><BossPanel /></RequireRole>} />
+                <Route path="/owner" element={<RequireRole allowed={["boss_owner"]}><SoftwareWalaOwnerDashboard /></RequireRole>} />
+                <Route path="/super-admin" element={<RequireRole allowed={["boss_owner", "super_admin"]}><SuperAdminDashboard /></RequireRole>} />
 
                 {/* Admin */}
-                <Route path="/admin" element={<RequireRole allowedRoles={["boss_owner", "ceo", "super_admin"]}><SecureAdminDashboard /></RequireRole>} />
-                <Route path="/admin/bulk-users" element={<RequireRole allowedRoles={["boss_owner", "ceo"]}><BulkUserCreation /></RequireRole>} />
-                <Route path="/admin/roles" element={<RequireRole allowedRoles={["boss_owner", "ceo"]}><RoleManagerPage /></RequireRole>} />
+                <Route path="/admin" element={<RequireRole allowed={["boss_owner", "ceo", "super_admin"]}><SecureAdminDashboard /></RequireRole>} />
+                <Route path="/admin/bulk-users" element={<RequireRole allowed={["boss_owner", "ceo"]}><BulkUserCreation /></RequireRole>} />
+                <Route path="/admin/roles" element={<RequireRole allowed={["boss_owner", "ceo"]}><RoleManagerPage /></RequireRole>} />
 
                 {/* Managers */}
                 <Route path="/lead-manager" element={<RequireAuth><LeadManager /></RequireAuth>} />
