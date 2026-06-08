@@ -912,6 +912,715 @@ export type Database = {
         }
         Relationships: []
       }
+      ams_achievements: {
+        Row: {
+          category: string
+          created_at: string
+          criteria: Json
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name: string
+          points: number
+          rarity: string
+          role_scope: string | null
+          updated_at: string
+          xp_reward: number
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          criteria?: Json
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          points?: number
+          rarity?: string
+          role_scope?: string | null
+          updated_at?: string
+          xp_reward?: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          criteria?: Json
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          points?: number
+          rarity?: string
+          role_scope?: string | null
+          updated_at?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
+      ams_audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          meta: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          meta?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          meta?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      ams_badges: {
+        Row: {
+          color: string | null
+          created_at: string
+          criteria: Json
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name: string
+          tier: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          criteria?: Json
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          tier?: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          criteria?: Json
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          tier?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ams_claims: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          reward_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          reward_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          reward_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ams_claims_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "ams_rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ams_leaderboard_entries: {
+        Row: {
+          id: string
+          leaderboard_id: string
+          period_key: string
+          rank: number | null
+          score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          leaderboard_id: string
+          period_key?: string
+          rank?: number | null
+          score?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          leaderboard_id?: string
+          period_key?: string
+          rank?: number | null
+          score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ams_leaderboard_entries_leaderboard_id_fkey"
+            columns: ["leaderboard_id"]
+            isOneToOne: false
+            referencedRelation: "ams_leaderboards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ams_leaderboards: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          metric: string
+          name: string
+          period: string
+          scope: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          metric?: string
+          name: string
+          period?: string
+          scope?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          metric?: string
+          name?: string
+          period?: string
+          scope?: string
+        }
+        Relationships: []
+      }
+      ams_levels: {
+        Row: {
+          created_at: string
+          icon: string | null
+          id: string
+          level_number: number
+          name: string
+          perks: Json | null
+          xp_required: number
+        }
+        Insert: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          level_number: number
+          name: string
+          perks?: Json | null
+          xp_required: number
+        }
+        Update: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          level_number?: number
+          name?: string
+          perks?: Json | null
+          xp_required?: number
+        }
+        Relationships: []
+      }
+      ams_milestones: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          metric: string
+          name: string
+          reward_id: string | null
+          reward_points: number | null
+          target_value: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          metric: string
+          name: string
+          reward_id?: string | null
+          reward_points?: number | null
+          target_value: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          metric?: string
+          name?: string
+          reward_id?: string | null
+          reward_points?: number | null
+          target_value?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ams_milestones_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "ams_rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ams_notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          is_read: boolean
+          notif_type: string
+          reference_id: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          notif_type: string
+          reference_id?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          notif_type?: string
+          reference_id?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ams_rewards: {
+        Row: {
+          cost_points: number
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name: string
+          reward_type: string
+          stock: number | null
+          updated_at: string
+          value_amount: number | null
+        }
+        Insert: {
+          cost_points?: number
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          reward_type?: string
+          stock?: number | null
+          updated_at?: string
+          value_amount?: number | null
+        }
+        Update: {
+          cost_points?: number
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          reward_type?: string
+          stock?: number | null
+          updated_at?: string
+          value_amount?: number | null
+        }
+        Relationships: []
+      }
+      ams_streaks: {
+        Row: {
+          created_at: string
+          current_count: number
+          id: string
+          last_activity_date: string | null
+          longest_count: number
+          streak_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_count?: number
+          id?: string
+          last_activity_date?: string | null
+          longest_count?: number
+          streak_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_count?: number
+          id?: string
+          last_activity_date?: string | null
+          longest_count?: number
+          streak_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ams_trophies: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name: string
+          season: string | null
+          tier: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          season?: string | null
+          tier?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          season?: string | null
+          tier?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ams_user_achievements: {
+        Row: {
+          achievement_id: string
+          created_at: string
+          id: string
+          progress: number
+          unlocked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          created_at?: string
+          id?: string
+          progress?: number
+          unlocked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          created_at?: string
+          id?: string
+          progress?: number
+          unlocked_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ams_user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "ams_achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ams_user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ams_user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "ams_badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ams_user_milestones: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_value: number
+          id: string
+          milestone_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number
+          id?: string
+          milestone_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number
+          id?: string
+          milestone_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ams_user_milestones_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "ams_milestones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ams_user_progress: {
+        Row: {
+          achievements_count: number
+          badges_count: number
+          created_at: string
+          current_level: number
+          current_streak: number
+          id: string
+          last_activity_at: string | null
+          longest_streak: number
+          total_points: number
+          total_xp: number
+          trophies_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achievements_count?: number
+          badges_count?: number
+          created_at?: string
+          current_level?: number
+          current_streak?: number
+          id?: string
+          last_activity_at?: string | null
+          longest_streak?: number
+          total_points?: number
+          total_xp?: number
+          trophies_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achievements_count?: number
+          badges_count?: number
+          created_at?: string
+          current_level?: number
+          current_streak?: number
+          id?: string
+          last_activity_at?: string | null
+          longest_streak?: number
+          total_points?: number
+          total_xp?: number
+          trophies_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ams_user_rewards: {
+        Row: {
+          claimed_at: string
+          fulfilled_at: string | null
+          id: string
+          meta: Json | null
+          points_spent: number
+          reward_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          fulfilled_at?: string | null
+          id?: string
+          meta?: Json | null
+          points_spent?: number
+          reward_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          fulfilled_at?: string | null
+          id?: string
+          meta?: Json | null
+          points_spent?: number
+          reward_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ams_user_rewards_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "ams_rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ams_user_trophies: {
+        Row: {
+          earned_at: string
+          id: string
+          rank: number | null
+          season: string | null
+          trophy_id: string
+          user_id: string
+        }
+        Insert: {
+          earned_at?: string
+          id?: string
+          rank?: number | null
+          season?: string | null
+          trophy_id: string
+          user_id: string
+        }
+        Update: {
+          earned_at?: string
+          id?: string
+          rank?: number | null
+          season?: string | null
+          trophy_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ams_user_trophies_trophy_id_fkey"
+            columns: ["trophy_id"]
+            isOneToOne: false
+            referencedRelation: "ams_trophies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ams_xp_events: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          meta: Json | null
+          reference_id: string | null
+          source: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          meta?: Json | null
+          reference_id?: string | null
+          source: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          meta?: Json | null
+          reference_id?: string | null
+          source?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       api_keys: {
         Row: {
           api_key_hash: string
