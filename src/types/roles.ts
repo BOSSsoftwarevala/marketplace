@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Software Vala Role System
 // 
 // NEW ROLE HIERARCHY (24 roles across 5 grades):

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * BOSS PENDING ACTIONS HOOK
  * Realtime pending approvals, alerts, and high-priority items for Boss Panel

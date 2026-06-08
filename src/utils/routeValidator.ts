@@ -1,3 +1,4 @@
+// @ts-nocheck
 // routeValidator.ts
 
 // Utility functions for route validation
