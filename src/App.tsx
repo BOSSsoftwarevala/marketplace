@@ -101,6 +101,9 @@ import APIIntegrationDashboard from "@/pages/APIIntegrationDashboard";
 import ApplyPortal from "@/pages/ApplyPortal";
 import CareerPortal from "@/pages/CareerPortal";
 
+// Achievement Management System
+import { AMSLayout, AMSOverview, Achievements, Badges, Trophies, Rewards, Levels, Milestones, Leaderboards, XPEngine, Streaks, MyProgress, MyAchievements, MyBadges, MyTrophies, MyRewards, Claims, Notifications, Analytics, AuditLogs, ClaimApprovals, RolePermissions, Seasons, Categories, Integrations, AMSSettings } from "@/pages/ams";
+
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
 });
@@ -206,6 +209,35 @@ function App() {
                 <Route path="/over-ai" element={<RequireAuth><OverAI /></RequireAuth>} />
                 <Route path="/internal-support-ai" element={<RequireAuth><InternalSupportAI /></RequireAuth>} />
                 <Route path="/api-integration" element={<RequireAuth><APIIntegrationDashboard /></RequireAuth>} />
+
+                {/* Achievement Management System */}
+                <Route path="/ams" element={<RequireAuth><AMSLayout /></RequireAuth>}>
+                  <Route index element={<AMSOverview />} />
+                  <Route path="achievements" element={<Achievements />} />
+                  <Route path="badges" element={<Badges />} />
+                  <Route path="trophies" element={<Trophies />} />
+                  <Route path="rewards" element={<Rewards />} />
+                  <Route path="levels" element={<Levels />} />
+                  <Route path="milestones" element={<Milestones />} />
+                  <Route path="leaderboards" element={<Leaderboards />} />
+                  <Route path="xp" element={<XPEngine />} />
+                  <Route path="streaks" element={<Streaks />} />
+                  <Route path="my-progress" element={<MyProgress />} />
+                  <Route path="my-achievements" element={<MyAchievements />} />
+                  <Route path="my-badges" element={<MyBadges />} />
+                  <Route path="my-trophies" element={<MyTrophies />} />
+                  <Route path="my-rewards" element={<MyRewards />} />
+                  <Route path="claims" element={<Claims />} />
+                  <Route path="notifications" element={<Notifications />} />
+                  <Route path="analytics" element={<Analytics />} />
+                  <Route path="audit" element={<AuditLogs />} />
+                  <Route path="admin/approvals" element={<ClaimApprovals />} />
+                  <Route path="admin/roles" element={<RolePermissions />} />
+                  <Route path="seasons" element={<Seasons />} />
+                  <Route path="categories" element={<Categories />} />
+                  <Route path="integrations" element={<Integrations />} />
+                  <Route path="settings" element={<AMSSettings />} />
+                </Route>
 
                 {/* Redirects */}
                 <Route path="/index" element={<Navigate to="/" replace />} />
