@@ -1,322 +1,407 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
-import { Mail, Lock, User, ArrowRight, Zap, Eye, EyeOff, CheckCircle2, ArrowLeft } from 'lucide-react';
+import {
+  Mail, Lock, Eye, EyeOff, Fingerprint, ShieldCheck, Sparkles, Mic, MicOff,
+  QrCode, KeyRound, ArrowRight, Zap, Activity, Globe, Cpu, Users, Building2,
+  Code2, Megaphone, Headphones, Handshake, Loader2, CheckCircle2,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-import { Database } from '@/integrations/supabase/types';
-import { useAnimationContext } from '@/contexts/AnimationContext';
 
-type AppRole = Database['public']['Enums']['app_role'];
+const emailSchema = z.string().email('Enter a valid email');
+const passwordSchema = z.string().min(6, 'Min 6 characters');
 
-const emailSchema = z.string().email('Please enter a valid email address');
-const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
+type AIState = 'idle' | 'email' | 'password' | 'reveal' | 'processing' | 'success' | 'error';
 
-const roleOptions: { value: AppRole; label: string; description: string; icon: string }[] = [
-  { value: 'user' as AppRole, label: 'User', description: 'Browse demos and purchase products', icon: '👤' },
-  { value: 'prime', label: 'Prime User', description: 'Premium client with priority access', icon: '⭐' },
-  { value: 'developer', label: 'Developer', description: 'Join as a developer to work on tasks', icon: '💻' },
-  { value: 'franchise', label: 'Franchise', description: 'Become a franchise partner', icon: '🏢' },
-  { value: 'reseller', label: 'Reseller', description: 'Start reselling our products', icon: '🤝' },
-  { value: 'influencer', label: 'Influencer', description: 'Promote and earn commissions', icon: '📢' },
+const programs = [
+  { icon: Handshake, label: 'Reseller', metric: '12,480', tone: 'from-cyan-500/20 to-blue-500/10' },
+  { icon: Building2, label: 'Franchise', metric: '3,210', tone: 'from-indigo-500/20 to-violet-500/10' },
+  { icon: Users, label: 'Partner', metric: '8,945', tone: 'from-sky-500/20 to-cyan-500/10' },
+  { icon: Code2, label: 'Developer', metric: '21,067', tone: 'from-emerald-500/20 to-teal-500/10' },
+  { icon: Megaphone, label: 'Sales', metric: '5,612', tone: 'from-blue-500/20 to-indigo-500/10' },
+  { icon: Headphones, label: 'Support', metric: '1,438', tone: 'from-violet-500/20 to-purple-500/10' },
 ];
 
-const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [selectedRole, setSelectedRole] = useState<AppRole>('user' as AppRole);
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; name?: string }>({});
-  
-  const { signIn, signUp, user } = useAuth();
-  const navigate = useNavigate();
-  const { showWelcome, showWelcomeBack } = useAnimationContext();
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
-      navigate('/dashboard');
-    }
-  }, [user, navigate]);
-
-  const validateForm = () => {
-    const newErrors: typeof errors = {};
-    
-    const emailResult = emailSchema.safeParse(email);
-    if (!emailResult.success) {
-      newErrors.email = emailResult.error.errors[0].message;
-    }
-
-    const passwordResult = passwordSchema.safeParse(password);
-    if (!passwordResult.success) {
-      newErrors.password = passwordResult.error.errors[0].message;
-    }
-
-    if (!isLogin && !fullName.trim()) {
-      newErrors.name = 'Full name is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    console.log('[AUTH] Form submitted - starting login process');
-    
-    if (!validateForm()) return;
-    
-    setLoading(true);
-    console.log('[AUTH] Validation passed, calling signIn...');
-
-    try {
-      if (isLogin) {
-        const { error } = await signIn(email, password);
-        console.log('[AUTH] signIn completed:', error ? 'ERROR' : 'SUCCESS');
-        
-        if (error) {
-          if (error.message.includes('Invalid login credentials')) {
-            toast.error('Invalid email or password');
-          } else {
-            toast.error(error.message);
-          }
-        } else {
-          showWelcomeBack(email.split('@')[0], 'default', 'SV-' + Math.random().toString(36).substring(2, 6).toUpperCase());
-          // Navigate to dashboard - the Dashboard component handles role-based routing
-          setTimeout(() => navigate('/dashboard', { replace: true }), 3000);
-        }
-      } else {
-        const { error } = await signUp(email, password, selectedRole, fullName);
-        if (error) {
-          if (error.message.includes('already registered')) {
-            toast.error('This email is already registered. Please login instead.');
-          } else {
-            toast.error(error.message);
-          }
-        } else {
-          showWelcome(fullName || email.split('@')[0], selectedRole);
-          // Navigate to dashboard - the Dashboard component handles role-based routing
-          setTimeout(() => navigate('/dashboard', { replace: true }), 4000);
-        }
-      }
-    } catch (err) {
-      toast.error('An unexpected error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
+// ─── AI Avatar ──────────────────────────────────────────────────────────────
+const AIAvatar = ({ state, cursor }: { state: AIState; cursor: { x: number; y: number } }) => {
+  // eye target follows cursor (subtle)
+  const dx = Math.max(-3, Math.min(3, (cursor.x - 0.5) * 8));
+  const dy = Math.max(-2, Math.min(2, (cursor.y - 0.5) * 5));
+  const eyesClosed = state === 'password' || state === 'processing';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4 relative z-[2147483647]" style={{ pointerEvents: 'auto' }}>
-      {/* Background Effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-teal/10 rounded-full blur-3xl" />
-      </div>
-
+    <div className="relative w-44 h-44 mx-auto">
+      {/* halo rings */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative w-full max-w-md z-[2147483647]"
+        className="absolute inset-0 rounded-full border border-cyan-400/30"
+        animate={{ scale: [1, 1.08, 1], opacity: [0.6, 0.2, 0.6] }}
+        transition={{ duration: 3, repeat: Infinity }}
+      />
+      <motion.div
+        className="absolute inset-2 rounded-full border border-blue-400/20"
+        animate={{ scale: [1.05, 1, 1.05], opacity: [0.3, 0.7, 0.3] }}
+        transition={{ duration: 4, repeat: Infinity }}
+      />
+      {/* core orb */}
+      <motion.div
+        className="absolute inset-6 rounded-full bg-gradient-to-br from-cyan-400/40 via-blue-500/30 to-indigo-600/40 backdrop-blur-xl border border-white/10"
+        animate={{
+          boxShadow: state === 'processing'
+            ? ['0 0 20px rgba(34,211,238,0.4)', '0 0 60px rgba(34,211,238,0.8)', '0 0 20px rgba(34,211,238,0.4)']
+            : state === 'success'
+            ? '0 0 50px rgba(16,185,129,0.6)'
+            : state === 'error'
+            ? '0 0 40px rgba(239,68,68,0.5)'
+            : '0 0 30px rgba(59,130,246,0.4)',
+        }}
+        transition={{ duration: 1.2, repeat: state === 'processing' ? Infinity : 0 }}
       >
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <motion.div 
-            className="inline-flex items-center gap-3 cursor-pointer"
-            whileHover={{ scale: 1.02 }}
-            onClick={() => navigate('/')}
-          >
-            <div className="relative">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-neon-teal flex items-center justify-center">
-                <Zap className="w-6 h-6 text-background" />
-              </div>
-              <div className="absolute inset-0 rounded-xl bg-primary/50 blur-xl -z-10" />
-            </div>
-            <div>
-              <h1 className="font-mono font-bold text-xl text-foreground tracking-tight">
-                SOFTWARE <span className="text-primary">VALA</span>
-              </h1>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Auth Card */}
-        <div className="glass-panel p-8 rounded-2xl border border-border/50 relative z-[2147483647]">
-          {/* Toggle */}
-          <div className="flex bg-muted/50 rounded-lg p-1 mb-6">
-            <button
-              onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                isLogin ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Login
-            </button>
-            <button
-              onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                !isLogin ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Sign Up
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <AnimatePresence mode="wait">
-              {!isLogin && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="space-y-4"
-                >
-                  {/* Full Name */}
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="text-foreground">Full Name</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="name"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        placeholder="John Doe"
-                        className="pl-10 bg-background/50 border-border/50 focus:border-primary"
-                      />
-                    </div>
-                    {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
-                  </div>
-
-                  {/* Role Selection */}
-                  <div className="space-y-2">
-                    <Label className="text-foreground">Select Your Role</Label>
-                    <div className="grid gap-2">
-                      {roleOptions.map((role) => (
-                        <motion.button
-                          key={role.value}
-                          type="button"
-                          onClick={() => setSelectedRole(role.value)}
-                          className={`flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
-                            selectedRole === role.value
-                              ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20'
-                              : 'border-border/50 hover:border-primary/50 bg-background/30'
-                          }`}
-                          whileHover={{ scale: 1.01 }}
-                          whileTap={{ scale: 0.99 }}
-                        >
-                          <span className="text-2xl">{role.icon}</span>
-                          <div className="flex-1">
-                            <p className="font-medium text-foreground">{role.label}</p>
-                            <p className="text-xs text-muted-foreground">{role.description}</p>
-                          </div>
-                          {selectedRole === role.value && (
-                            <CheckCircle2 className="w-5 h-5 text-primary" />
-                          )}
-                        </motion.button>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Email */}
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-foreground">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="pl-10 bg-background/50 border-border/50 focus:border-primary"
+        {/* face */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {state === 'processing' ? (
+            <Loader2 className="w-10 h-10 text-cyan-200 animate-spin" />
+          ) : state === 'success' ? (
+            <CheckCircle2 className="w-12 h-12 text-emerald-300" />
+          ) : (
+            <div className="flex gap-3" style={{ transform: `translate(${dx}px, ${dy}px)` }}>
+              {[0, 1].map((i) => (
+                <motion.span
+                  key={i}
+                  className="block w-2.5 rounded-full bg-cyan-100"
+                  animate={{ height: eyesClosed ? 2 : 10 }}
+                  transition={{ duration: 0.18 }}
                 />
-              </div>
-              {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-            </div>
-
-            {/* Password */}
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-foreground">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="pl-10 pr-10 bg-background/50 border-border/50 focus:border-primary"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-              {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
-            </div>
-
-            <Button
-              type="submit"
-              disabled={loading}
-          className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold py-5 mt-6 relative"
-          style={{ pointerEvents: 'auto', zIndex: 2147483647, cursor: 'pointer' }}
-            >
-              {loading ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                  {isLogin ? 'Signing in...' : 'Creating account...'}
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  {isLogin ? 'Sign In' : 'Create Account'}
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              )}
-            </Button>
-          </form>
-
-          {/* Forgot Password Link - only show on login */}
-          {isLogin && (
-            <div className="text-center mt-4">
-              <Link to="/forgot-password" className="text-sm text-primary hover:underline">
-                Forgot your password?
-              </Link>
+              ))}
             </div>
           )}
-
-          <p className="text-center text-sm text-muted-foreground mt-4">
-            {isLogin ? "Don't have an account? " : "Already have an account? "}
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-primary hover:underline font-medium"
-            >
-              {isLogin ? 'Sign up' : 'Sign in'}
-            </button>
-          </p>
-
-          {/* Back to Home */}
-          <div className="text-center mt-4">
-            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
-              <ArrowLeft className="w-3 h-3" />
-              Back to Home
-            </Link>
-          </div>
         </div>
       </motion.div>
+      {/* scan line on processing */}
+      {state === 'processing' && (
+        <motion.div
+          className="absolute inset-6 rounded-full overflow-hidden pointer-events-none"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+        >
+          <motion.div
+            className="absolute left-0 right-0 h-px bg-cyan-300/80 shadow-[0_0_8px_rgba(34,211,238,0.9)]"
+            animate={{ top: ['0%', '100%', '0%'] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: 'linear' }}
+          />
+        </motion.div>
+      )}
+    </div>
+  );
+};
+
+// ─── Page ───────────────────────────────────────────────────────────────────
+const Auth = () => {
+  const { signIn, user } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [remember, setRemember] = useState(true);
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [aiState, setAiState] = useState<AIState>('idle');
+  const [voiceOn, setVoiceOn] = useState(false);
+  const [cursor, setCursor] = useState({ x: 0.5, y: 0.5 });
+  const [aiMsg, setAiMsg] = useState('Welcome. I will guide you in.');
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { if (user) navigate('/dashboard', { replace: true }); }, [user, navigate]);
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      const r = containerRef.current?.getBoundingClientRect();
+      if (!r) return;
+      setCursor({ x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height });
+    };
+    window.addEventListener('mousemove', onMove);
+    return () => window.removeEventListener('mousemove', onMove);
+  }, []);
+
+  useEffect(() => {
+    const msgs: Record<AIState, string> = {
+      idle: 'Welcome. I will guide you in.',
+      email: 'Identifying your workspace…',
+      password: 'Privacy mode active. I am not looking.',
+      reveal: 'Confirming your key.',
+      processing: 'Verifying with secure gateway…',
+      success: 'Authenticated. Preparing your console.',
+      error: 'I can help. Try again or recover access.',
+    };
+    setAiMsg(msgs[aiState]);
+  }, [aiState]);
+
+  const validate = () => {
+    const e: typeof errors = {};
+    const er = emailSchema.safeParse(email); if (!er.success) e.email = er.error.errors[0].message;
+    const pr = passwordSchema.safeParse(password); if (!pr.success) e.password = pr.error.errors[0].message;
+    setErrors(e); return Object.keys(e).length === 0;
+  };
+
+  const onSubmit = async (ev: React.FormEvent) => {
+    ev.preventDefault();
+    if (!validate()) { setAiState('error'); return; }
+    setAiState('processing');
+    try {
+      const { error } = await signIn(email, password);
+      if (error) {
+        setAiState('error');
+        toast.error(error.message.includes('Invalid') ? 'Invalid email or password' : error.message);
+      } else {
+        setAiState('success');
+        setTimeout(() => navigate('/dashboard', { replace: true }), 900);
+      }
+    } catch {
+      setAiState('error');
+      toast.error('Unexpected error');
+    }
+  };
+
+  const oauth = (p: string) => toast.info(`${p} sign-in coming online`);
+
+  return (
+    <div
+      ref={containerRef}
+      className="min-h-screen w-full overflow-hidden relative bg-[#05070d] text-slate-100"
+    >
+      {/* ambient backdrop */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(34,211,238,0.10),transparent_50%),radial-gradient(circle_at_80%_70%,rgba(99,102,241,0.12),transparent_55%)]" />
+        <div className="absolute inset-0 opacity-[0.05] bg-[linear-gradient(rgba(255,255,255,0.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.6)_1px,transparent_1px)] bg-[size:48px_48px]" />
+      </div>
+
+      {/* top status bar */}
+      <header className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-white/5">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-indigo-600 flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.5)]">
+            <Zap className="w-4 h-4 text-[#05070d]" />
+          </div>
+          <div className="font-mono text-sm tracking-widest">
+            SOFTWARE <span className="text-cyan-300">VALA</span> <span className="text-slate-500">/ NEXUS</span>
+          </div>
+        </div>
+        <div className="hidden md:flex items-center gap-5 text-xs font-mono text-slate-400">
+          <span className="flex items-center gap-1.5"><Activity className="w-3.5 h-3.5 text-emerald-400" /> all systems nominal</span>
+          <span className="flex items-center gap-1.5"><Globe className="w-3.5 h-3.5 text-cyan-400" /> 17 regions</span>
+          <span className="flex items-center gap-1.5"><Cpu className="w-3.5 h-3.5 text-indigo-400" /> ai gateway · live</span>
+        </div>
+      </header>
+
+      {/* 3-zone layout */}
+      <main className="relative z-10 grid grid-cols-1 lg:grid-cols-[1.05fr_1.1fr_1fr] gap-6 px-6 py-8 max-w-[1600px] mx-auto">
+        {/* LEFT — Ecosystem */}
+        <section className="hidden lg:flex flex-col gap-4">
+          <div className="text-xs font-mono uppercase tracking-[0.25em] text-slate-500">Nexus · opportunities</div>
+          <h2 className="text-2xl font-semibold leading-tight">
+            One identity. <span className="text-cyan-300">Six programs.</span> An ecosystem that thinks.
+          </h2>
+          <div className="grid grid-cols-2 gap-3 mt-2">
+            {programs.map((p, i) => (
+              <motion.div
+                key={p.label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.06 }}
+                className={`relative rounded-xl border border-white/10 bg-gradient-to-br ${p.tone} backdrop-blur-xl p-4 overflow-hidden`}
+              >
+                <div className="absolute inset-0 opacity-30 bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.06),transparent)]" />
+                <div className="flex items-center justify-between">
+                  <p.icon className="w-5 h-5 text-cyan-200" />
+                  <span className="text-[10px] font-mono text-emerald-300">● live</span>
+                </div>
+                <div className="mt-3 text-xs text-slate-300">{p.label} Program</div>
+                <div className="font-mono text-lg text-white">{p.metric}</div>
+              </motion.div>
+            ))}
+          </div>
+          <div className="mt-auto rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-xl p-4">
+            <div className="text-xs font-mono text-slate-500 mb-2">live platform metrics</div>
+            <div className="grid grid-cols-3 gap-3 text-center">
+              {[['Sessions','48.2k'],['Latency','38ms'],['Uptime','99.99%']].map(([k,v]) => (
+                <div key={k}>
+                  <div className="text-lg font-mono text-cyan-200">{v}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-slate-500">{k}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CENTER — Auth */}
+        <section className="flex flex-col items-stretch justify-center">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            className="relative rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-2xl p-8 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]"
+          >
+            <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-cyan-400/20 via-transparent to-indigo-500/20 -z-10 blur-xl opacity-60" />
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-cyan-300">secure gateway</div>
+                <h1 className="text-2xl font-semibold mt-1">Authenticate</h1>
+              </div>
+              <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-300">
+                <ShieldCheck className="w-3.5 h-3.5" /> tls · argon2 · jwt
+              </div>
+            </div>
+
+            <form onSubmit={onSubmit} className="space-y-4">
+              <div>
+                <label className="text-[11px] font-mono uppercase tracking-widest text-slate-400">Email / Mobile / Username</label>
+                <div className="relative mt-1.5">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  <Input
+                    type="text" autoComplete="username" value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onFocus={() => setAiState('email')}
+                    onBlur={() => aiState === 'email' && setAiState('idle')}
+                    placeholder="you@nexus.io"
+                    className="pl-9 h-11 bg-black/40 border-white/10 focus-visible:ring-cyan-400/50 focus-visible:border-cyan-400/50 text-slate-100 placeholder:text-slate-600"
+                  />
+                </div>
+                {errors.email && <p className="text-xs text-red-400 mt-1">{errors.email}</p>}
+              </div>
+
+              <div>
+                <label className="text-[11px] font-mono uppercase tracking-widest text-slate-400">Password</label>
+                <div className="relative mt-1.5">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  <Input
+                    type={showPassword ? 'text' : 'password'} autoComplete="current-password" value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onFocus={() => setAiState(showPassword ? 'reveal' : 'password')}
+                    onBlur={() => (aiState === 'password' || aiState === 'reveal') && setAiState('idle')}
+                    placeholder="••••••••••"
+                    className="pl-9 pr-10 h-11 bg-black/40 border-white/10 focus-visible:ring-cyan-400/50 focus-visible:border-cyan-400/50 text-slate-100 placeholder:text-slate-600"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => { const n = !showPassword; setShowPassword(n); if (document.activeElement?.tagName === 'INPUT') setAiState(n ? 'reveal' : 'password'); }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-cyan-300 transition"
+                    aria-label="toggle password"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                {errors.password && <p className="text-xs text-red-400 mt-1">{errors.password}</p>}
+              </div>
+
+              <div className="flex items-center justify-between text-xs">
+                <label className="flex items-center gap-2 text-slate-400 cursor-pointer select-none">
+                  <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="accent-cyan-400" />
+                  Remember this device
+                </label>
+                <button type="button" onClick={() => navigate('/auth/forgot-password')} className="text-cyan-300 hover:text-cyan-200">
+                  Forgot password?
+                </button>
+              </div>
+
+              <Button
+                type="submit" disabled={aiState === 'processing'}
+                className="w-full h-11 bg-gradient-to-r from-cyan-400 to-indigo-500 hover:from-cyan-300 hover:to-indigo-400 text-[#05070d] font-semibold shadow-[0_0_30px_rgba(34,211,238,0.35)]"
+              >
+                {aiState === 'processing' ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Authenticating…</>
+                ) : aiState === 'success' ? (
+                  <><CheckCircle2 className="w-4 h-4 mr-2" />Verified</>
+                ) : (
+                  <>Enter Nexus <ArrowRight className="w-4 h-4 ml-2" /></>
+                )}
+              </Button>
+
+              <div className="flex items-center gap-3 my-2">
+                <div className="flex-1 h-px bg-white/10" />
+                <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500">alternate</span>
+                <div className="flex-1 h-px bg-white/10" />
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                <button type="button" onClick={() => oauth('OTP')} className="flex items-center justify-center gap-1.5 h-10 rounded-md border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] text-xs text-slate-300 transition">
+                  <KeyRound className="w-3.5 h-3.5" /> OTP
+                </button>
+                <button type="button" onClick={() => oauth('QR')} className="flex items-center justify-center gap-1.5 h-10 rounded-md border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] text-xs text-slate-300 transition">
+                  <QrCode className="w-3.5 h-3.5" /> QR
+                </button>
+                <button type="button" onClick={() => oauth('Biometric')} className="flex items-center justify-center gap-1.5 h-10 rounded-md border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] text-xs text-slate-300 transition">
+                  <Fingerprint className="w-3.5 h-3.5" /> Bio
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {['Google', 'Microsoft', 'GitHub'].map((p) => (
+                  <button key={p} type="button" onClick={() => oauth(p)} className="h-10 rounded-md border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] text-xs text-slate-300 transition">
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </form>
+
+            <div className="mt-6 flex items-center justify-between text-[10px] font-mono text-slate-500">
+              <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> session encrypted</span>
+              <span>v3.2 · nexus core</span>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* RIGHT — AI Assistant */}
+        <section className="hidden lg:flex flex-col">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+            className="relative rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-2xl p-6 flex-1 flex flex-col"
+          >
+            <div className="flex items-center justify-between">
+              <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-cyan-300">vala · ai assistant</div>
+              <button
+                onClick={() => setVoiceOn(v => !v)}
+                className={`flex items-center gap-1.5 text-[10px] font-mono px-2.5 py-1 rounded-full border transition ${
+                  voiceOn ? 'border-cyan-400/50 text-cyan-300 bg-cyan-400/10' : 'border-white/10 text-slate-400'
+                }`}
+              >
+                {voiceOn ? <Mic className="w-3 h-3" /> : <MicOff className="w-3 h-3" />}
+                {voiceOn ? 'listening' : 'voice off'}
+              </button>
+            </div>
+
+            <div className="mt-6"><AIAvatar state={aiState} cursor={cursor} /></div>
+
+            <div className="mt-6 rounded-xl border border-white/10 bg-black/30 p-4 min-h-[88px]">
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={aiMsg}
+                  initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
+                  className="text-sm text-slate-200 leading-relaxed"
+                >
+                  <Sparkles className="inline w-3.5 h-3.5 text-cyan-300 mr-1.5 -mt-0.5" />
+                  {aiMsg}
+                </motion.p>
+              </AnimatePresence>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] font-mono">
+              {[
+                ['presence', aiState === 'idle' ? 'detected' : 'engaged'],
+                ['focus', aiState === 'email' ? 'email' : aiState === 'password' ? 'password' : '—'],
+                ['privacy', aiState === 'password' ? 'eyes closed' : 'standard'],
+                ['gateway', aiState === 'processing' ? 'verifying' : 'ready'],
+              ].map(([k, v]) => (
+                <div key={k} className="rounded-md border border-white/5 bg-white/[0.02] px-3 py-2 flex items-center justify-between">
+                  <span className="text-slate-500 uppercase tracking-wider">{k}</span>
+                  <span className="text-cyan-200">{v}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-auto pt-4 text-[10px] font-mono text-slate-500 flex items-center gap-2">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              ai never sees your password. privacy enforced at input level.
+            </div>
+          </motion.div>
+        </section>
+      </main>
     </div>
   );
 };
