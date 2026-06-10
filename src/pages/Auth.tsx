@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { useVoiceAssistant } from '@/hooks/useVoiceAssistant';
+import { Volume2, VolumeX } from 'lucide-react';
 
 const emailSchema = z.string().email('Enter a valid email');
 const passwordSchema = z.string().min(6, 'Min 6 characters');
@@ -107,10 +109,29 @@ const Auth = () => {
   const [remember, setRemember] = useState(true);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [aiState, setAiState] = useState<AIState>('idle');
-  const [voiceOn, setVoiceOn] = useState(false);
   const [cursor, setCursor] = useState({ x: 0.5, y: 0.5 });
   const [aiMsg, setAiMsg] = useState('Welcome. I will guide you in.');
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Voice intent router — fills fields and triggers actions hands-free
+  const handleVoice = (text: string, isFinal: boolean) => {
+    if (!isFinal) return;
+    const t = text.toLowerCase().trim();
+    const emailMatch = t.match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
+    if (emailMatch) setEmail(emailMatch[0]);
+    if (/(log ?in|sign in|enter|submit|authenticate)/.test(t)) {
+      formRef.current?.requestSubmit();
+    } else if (/(forgot|reset).*(password)/.test(t)) {
+      navigate('/auth/forgot-password');
+    } else if (/show password/.test(t)) {
+      setShowPassword(true);
+    } else if (/hide password/.test(t)) {
+      setShowPassword(false);
+    }
+  };
+
+  const voice = useVoiceAssistant({ onTranscript: handleVoice });
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => { if (user) navigate('/dashboard', { replace: true }); }, [user, navigate]);
 
@@ -135,6 +156,8 @@ const Auth = () => {
       error: 'I can help. Try again or recover access.',
     };
     setAiMsg(msgs[aiState]);
+    if (voice.enabled) voice.speak(msgs[aiState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aiState]);
 
   const validate = () => {
@@ -250,7 +273,7 @@ const Auth = () => {
               </div>
             </div>
 
-            <form onSubmit={onSubmit} className="space-y-4">
+            <form ref={formRef} onSubmit={onSubmit} className="space-y-4">
               <div>
                 <label className="text-[11px] font-mono uppercase tracking-widest text-slate-400">Email / Mobile / Username</label>
                 <div className="relative mt-1.5">
@@ -353,18 +376,61 @@ const Auth = () => {
             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
             className="relative rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-2xl p-6 flex-1 flex flex-col"
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-cyan-300">vala · ai assistant</div>
-              <button
-                onClick={() => setVoiceOn(v => !v)}
-                className={`flex items-center gap-1.5 text-[10px] font-mono px-2.5 py-1 rounded-full border transition ${
-                  voiceOn ? 'border-cyan-400/50 text-cyan-300 bg-cyan-400/10' : 'border-white/10 text-slate-400'
-                }`}
-              >
-                {voiceOn ? <Mic className="w-3 h-3" /> : <MicOff className="w-3 h-3" />}
-                {voiceOn ? 'listening' : 'voice off'}
-              </button>
+              <div className="flex items-center gap-1.5">
+                <select
+                  value={voice.lang}
+                  onChange={(e) => voice.setLang(e.target.value)}
+                  disabled={!voice.supported}
+                  className="text-[10px] font-mono bg-black/40 border border-white/10 rounded-full px-2 py-1 text-slate-300 focus:outline-none focus:border-cyan-400/40"
+                  aria-label="voice language"
+                >
+                  {voice.langs.map((l) => (
+                    <option key={l.code} value={l.code} className="bg-black">{l.label}</option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => voice.setMuted(!voice.muted)}
+                  disabled={!voice.supported}
+                  title={voice.muted ? 'unmute voice output' : 'mute voice output'}
+                  className="p-1.5 rounded-full border border-white/10 text-slate-400 hover:text-cyan-300 hover:border-cyan-400/40 transition disabled:opacity-40"
+                >
+                  {voice.muted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={voice.toggleListening}
+                  disabled={!voice.supported}
+                  className={`flex items-center gap-1.5 text-[10px] font-mono px-2.5 py-1 rounded-full border transition disabled:opacity-40 ${
+                    voice.enabled
+                      ? 'border-cyan-400/50 text-cyan-300 bg-cyan-400/10'
+                      : 'border-white/10 text-slate-400 hover:text-cyan-300'
+                  }`}
+                  title={voice.supported ? '' : 'voice not supported in this browser'}
+                >
+                  {voice.enabled ? <Mic className="w-3 h-3" /> : <MicOff className="w-3 h-3" />}
+                  {voice.enabled ? (voice.listening ? 'listening' : 'paused') : 'voice off'}
+                </button>
+              </div>
             </div>
+
+            {voice.enabled && voice.transcript && (
+              <div className="mt-3 text-[11px] font-mono text-slate-400 bg-black/30 border border-white/5 rounded-md px-2.5 py-1.5">
+                <span className="text-cyan-300">›</span> {voice.transcript}
+              </div>
+            )}
+            {voice.speaking && (
+              <div className="mt-2 flex items-center gap-1.5 text-[10px] font-mono text-cyan-300">
+                <span className="flex gap-0.5">
+                  <span className="w-0.5 h-2 bg-cyan-300 rounded animate-pulse" />
+                  <span className="w-0.5 h-3 bg-cyan-300 rounded animate-pulse [animation-delay:120ms]" />
+                  <span className="w-0.5 h-2 bg-cyan-300 rounded animate-pulse [animation-delay:240ms]" />
+                </span>
+                speaking — say anything to interrupt
+              </div>
+            )}
 
             <div className="mt-6"><AIAvatar state={aiState} cursor={cursor} /></div>
 
