@@ -109,10 +109,29 @@ const Auth = () => {
   const [remember, setRemember] = useState(true);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [aiState, setAiState] = useState<AIState>('idle');
-  const [voiceOn, setVoiceOn] = useState(false);
   const [cursor, setCursor] = useState({ x: 0.5, y: 0.5 });
   const [aiMsg, setAiMsg] = useState('Welcome. I will guide you in.');
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Voice intent router — fills fields and triggers actions hands-free
+  const handleVoice = (text: string, isFinal: boolean) => {
+    if (!isFinal) return;
+    const t = text.toLowerCase().trim();
+    const emailMatch = t.match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
+    if (emailMatch) setEmail(emailMatch[0]);
+    if (/(log ?in|sign in|enter|submit|authenticate)/.test(t)) {
+      formRef.current?.requestSubmit();
+    } else if (/(forgot|reset).*(password)/.test(t)) {
+      navigate('/auth/forgot-password');
+    } else if (/show password/.test(t)) {
+      setShowPassword(true);
+    } else if (/hide password/.test(t)) {
+      setShowPassword(false);
+    }
+  };
+
+  const voice = useVoiceAssistant({ onTranscript: handleVoice });
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => { if (user) navigate('/dashboard', { replace: true }); }, [user, navigate]);
 
@@ -137,6 +156,8 @@ const Auth = () => {
       error: 'I can help. Try again or recover access.',
     };
     setAiMsg(msgs[aiState]);
+    if (voice.enabled) voice.speak(msgs[aiState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aiState]);
 
   const validate = () => {
