@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { useVoiceAssistant } from '@/hooks/useVoiceAssistant';
+import { Volume2, VolumeX } from 'lucide-react';
 
 const emailSchema = z.string().email('Enter a valid email');
 const passwordSchema = z.string().min(6, 'Min 6 characters');
