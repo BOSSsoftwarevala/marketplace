@@ -3,8 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { useGeoLocale, convertPrice, parseINRPrice } from "@/hooks/useGeoLocale";
-import { FIXED_OFFER_TEXT, useFestivalBanner } from "@/hooks/useFestivalBanner";
+import { convertPrice, parseINRPrice } from "@/hooks/useGeoLocale";
 import { useEnterpriseAudit } from "@/hooks/useEnterpriseAudit";
 import { useProtectedActionHandler } from "@/hooks/useProtectedActionHandler";
 import { allMarketplaceProducts, totalProductCount } from "@/data/marketplace";
@@ -26,23 +25,24 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import softwareValaLogo from "@/assets/software-vala-logo.jpg";
 
-// Netflix poster thumbnails
-import thumbEducation from "@/assets/thumbnails/education.jpg";
-import thumbHealthcare from "@/assets/thumbnails/healthcare.jpg";
-import thumbFinance from "@/assets/thumbnails/finance.jpg";
-import thumbHospitality from "@/assets/thumbnails/hospitality.jpg";
-import thumbRetail from "@/assets/thumbnails/retail.jpg";
-import thumbTransport from "@/assets/thumbnails/transport.jpg";
-import thumbRealEstate from "@/assets/thumbnails/realestate.jpg";
-import thumbIndustry from "@/assets/thumbnails/industry.jpg";
-import thumbFitness from "@/assets/thumbnails/fitness.jpg";
-import thumbSalon from "@/assets/thumbnails/salon.jpg";
-import thumbReligious from "@/assets/thumbnails/religious.jpg";
-import thumbTechnology from "@/assets/thumbnails/technology.jpg";
-import thumbAgriculture from "@/assets/thumbnails/agriculture.jpg";
-import thumbLegal from "@/assets/thumbnails/legal.jpg";
-import thumbAutomotive from "@/assets/thumbnails/automotive.jpg";
-import thumbHR from "@/assets/thumbnails/hr.jpg";
+import defaultThumb from "@/assets/ai-and-i-hero.jpg";
+
+const thumbEducation = defaultThumb;
+const thumbHealthcare = defaultThumb;
+const thumbFinance = defaultThumb;
+const thumbHospitality = defaultThumb;
+const thumbRetail = defaultThumb;
+const thumbTransport = defaultThumb;
+const thumbRealEstate = defaultThumb;
+const thumbIndustry = defaultThumb;
+const thumbFitness = defaultThumb;
+const thumbSalon = defaultThumb;
+const thumbReligious = defaultThumb;
+const thumbTechnology = defaultThumb;
+const thumbAgriculture = defaultThumb;
+const thumbLegal = defaultThumb;
+const thumbAutomotive = defaultThumb;
+const thumbHR = defaultThumb;
 
 // Map masterCategory/category to thumbnails
 const CATEGORY_THUMBNAILS: Record<string, string> = {
