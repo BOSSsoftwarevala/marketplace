@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { convertPrice, parseINRPrice } from "@/hooks/useGeoLocale";
@@ -3310,7 +3310,6 @@ const masterCategories = [
 
 const Index = () => {
   const { handleAction } = useProtectedActionHandler();
-  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
