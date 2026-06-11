@@ -1,10 +1,9 @@
 // @ts-nocheck
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { useGeoLocale, convertPrice, parseINRPrice } from "@/hooks/useGeoLocale";
-import { FIXED_OFFER_TEXT, useFestivalBanner } from "@/hooks/useFestivalBanner";
+import { convertPrice, parseINRPrice } from "@/hooks/useGeoLocale";
 import { useEnterpriseAudit } from "@/hooks/useEnterpriseAudit";
 import { useProtectedActionHandler } from "@/hooks/useProtectedActionHandler";
 import { allMarketplaceProducts, totalProductCount } from "@/data/marketplace";
@@ -26,23 +25,24 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import softwareValaLogo from "@/assets/software-vala-logo.jpg";
 
-// Netflix poster thumbnails
-import thumbEducation from "@/assets/thumbnails/education.jpg";
-import thumbHealthcare from "@/assets/thumbnails/healthcare.jpg";
-import thumbFinance from "@/assets/thumbnails/finance.jpg";
-import thumbHospitality from "@/assets/thumbnails/hospitality.jpg";
-import thumbRetail from "@/assets/thumbnails/retail.jpg";
-import thumbTransport from "@/assets/thumbnails/transport.jpg";
-import thumbRealEstate from "@/assets/thumbnails/realestate.jpg";
-import thumbIndustry from "@/assets/thumbnails/industry.jpg";
-import thumbFitness from "@/assets/thumbnails/fitness.jpg";
-import thumbSalon from "@/assets/thumbnails/salon.jpg";
-import thumbReligious from "@/assets/thumbnails/religious.jpg";
-import thumbTechnology from "@/assets/thumbnails/technology.jpg";
-import thumbAgriculture from "@/assets/thumbnails/agriculture.jpg";
-import thumbLegal from "@/assets/thumbnails/legal.jpg";
-import thumbAutomotive from "@/assets/thumbnails/automotive.jpg";
-import thumbHR from "@/assets/thumbnails/hr.jpg";
+import defaultThumb from "@/assets/ai-and-i-hero.jpg";
+
+const thumbEducation = defaultThumb;
+const thumbHealthcare = defaultThumb;
+const thumbFinance = defaultThumb;
+const thumbHospitality = defaultThumb;
+const thumbRetail = defaultThumb;
+const thumbTransport = defaultThumb;
+const thumbRealEstate = defaultThumb;
+const thumbIndustry = defaultThumb;
+const thumbFitness = defaultThumb;
+const thumbSalon = defaultThumb;
+const thumbReligious = defaultThumb;
+const thumbTechnology = defaultThumb;
+const thumbAgriculture = defaultThumb;
+const thumbLegal = defaultThumb;
+const thumbAutomotive = defaultThumb;
+const thumbHR = defaultThumb;
 
 // Map masterCategory/category to thumbnails
 const CATEGORY_THUMBNAILS: Record<string, string> = {
@@ -3310,13 +3310,10 @@ const masterCategories = [
 
 const Index = () => {
   const { handleAction } = useProtectedActionHandler();
-  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
   const [heroIndex, setHeroIndex] = useState(0);
-  const geoLocale = useGeoLocale();
-  const festivalBanner = useFestivalBanner(geoLocale.country, geoLocale.countryName);
 
   // Auto-rotate hero every 6s
   useEffect(() => {
@@ -3383,14 +3380,6 @@ const Index = () => {
               <Badge className="bg-white/20 text-white border-0 text-xs px-3 py-1.5">
                 🎉 No Hidden Charges
               </Badge>
-              {festivalBanner && (
-                <Badge
-                  className={`cursor-pointer bg-gradient-to-r ${festivalBanner.gradient} text-white border-0 text-xs px-3 py-1.5 font-bold animate-pulse`}
-                  onClick={() => navigate('/marketplace/offers')}
-                >
-                  {festivalBanner.compactText}
-                </Badge>
-              )}
               {/* Login Button - For regular users */}
               <Button className="bg-white text-orange-600 hover:bg-white/90 font-bold gap-2" onClick={() => void handleAction('login')}>
                   <Lock className="h-4 w-4" />
@@ -3506,41 +3495,8 @@ const Index = () => {
         );
       })()}
 
-      {/* Festival Banner */}
-      {festivalBanner && (
-        <section className="px-4 md:px-12 -mt-8 relative z-20 mb-6">
-          <div className="max-w-[1400px] mx-auto">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className={`relative cursor-pointer rounded-xl overflow-hidden bg-gradient-to-r ${festivalBanner.gradient} p-6 md:p-8`}
-              onClick={() => navigate('/marketplace/offers')}
-            >
-              <div className="absolute inset-0 bg-black/20" />
-              <div className="absolute top-0 right-8 opacity-10 text-[80px]">{festivalBanner.emoji}</div>
-              <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
-                <div>
-                  <h3 className="text-2xl font-extrabold text-white">{festivalBanner.title}</h3>
-                  <p className="text-white/90 text-base font-semibold mt-2">{festivalBanner.subtitle}</p>
-                  <p className="text-white/80 text-sm mt-1">{festivalBanner.note}</p>
-                  <p className="text-white/70 text-xs mt-2">Auto-detected for {festivalBanner.countryName}{festivalBanner.isGlobal ? ' • Global fallback active' : ''}</p>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <Badge className="bg-white text-emerald-700 border-0 text-2xl px-6 py-3 font-extrabold">
-                    {FIXED_OFFER_TEXT}
-                  </Badge>
-                  <Badge className="bg-white/20 text-white border-white/30 text-sm px-4 py-1.5 font-bold backdrop-blur-sm">
-                    Limited time offer for {festivalBanner.countryName}
-                  </Badge>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-      )}
-
       {/* ===== 50 NETFLIX HORIZONTAL ROWS ===== */}
-      <section className="pb-12 px-4 md:px-12 space-y-10">
+      <section className="pt-8 pb-12 px-4 md:px-12 space-y-10">
         <div className="max-w-[1400px] mx-auto space-y-10">
           {NETFLIX_ROWS.map(row => {
             const rowDemos = mergedDemos.filter(row.filter);
@@ -3703,16 +3659,13 @@ const DemoCard = ({ demo, index, isFavorite, onToggleFavorite, localPrice }: {
   const displayPrice = localPrice ? localPrice(demo.discountPrice) : demo.discountPrice;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: Math.min(index * 0.04, 0.4) }}
+    <div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="relative group cursor-pointer"
+      className="relative group cursor-pointer transform-gpu"
     >
       {/* Poster Card */}
-      <div className={`relative rounded-lg overflow-hidden aspect-[3/4] transition-all duration-300 ${isHovered ? 'scale-105 z-30 shadow-2xl shadow-black/80' : 'scale-100 z-0'}`}>
+      <div className="relative rounded-lg overflow-hidden aspect-[3/4] transition-shadow duration-300 hover:shadow-xl hover:shadow-black/50">
         {/* Poster Visual — AI Generated Thumbnail */}
         <img 
           src={getThumbnail(demo)} 
@@ -3755,7 +3708,7 @@ const DemoCard = ({ demo, index, isFavorite, onToggleFavorite, localPrice }: {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm z-20 flex flex-col justify-end p-3"
+              className="absolute inset-0 bg-black/78 z-20 flex flex-col justify-end p-3"
             >
               <h4 className="text-white font-bold text-sm mb-1">{demo.name}</h4>
               <p className="text-slate-400 text-[11px] line-clamp-2 mb-2">{demo.description}</p>
@@ -3856,7 +3809,7 @@ const DemoCard = ({ demo, index, isFavorite, onToggleFavorite, localPrice }: {
           )}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

@@ -17,6 +17,8 @@ export type BossPanelSection =
   | 'codepilot'
   | 'server-hosting'
   | 'vala-ai'
+  | 'auth-dashboard'
+  | 'auth-management'
   | 'settings';
 
 interface BossPanelLayoutProps {
@@ -60,7 +62,11 @@ export function BossPanelLayout({ children }: BossPanelLayoutProps) {
             background: '#F8FAFC'
           }}
         >
-          {children || <Outlet context={{ activeSection, streamingOn }} />}
+          {children
+            ? React.isValidElement(children)
+              ? React.cloneElement(children as React.ReactElement<any>, { activeSection, streamingOn })
+              : children
+            : <Outlet context={{ activeSection, streamingOn }} />}
         </main>
       </div>
     </div>

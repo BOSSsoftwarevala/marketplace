@@ -16,7 +16,9 @@ import {
   ChevronRight,
   Code2,
   Server,
-  Brain
+  Brain,
+  KeyRound,
+  UserCog
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { BossPanelSection } from './BossPanelLayout';
@@ -38,6 +40,8 @@ const menuItems: { id: BossPanelSection; label: string; icon: React.ElementType 
   { id: 'modules', label: 'System Modules', icon: Boxes },
   { id: 'products', label: 'Product & Demo', icon: Package },
   { id: 'vala-ai', label: 'VALA AI', icon: Brain },
+  { id: 'auth-dashboard', label: 'Auth Dashboard', icon: KeyRound },
+  { id: 'auth-management', label: 'Auth Management', icon: UserCog },
   { id: 'revenue', label: 'Revenue Snapshot', icon: DollarSign },
   { id: 'audit', label: 'Audit & Blackbox', icon: FileSearch },
   { id: 'security', label: 'Security & Legal', icon: Lock },

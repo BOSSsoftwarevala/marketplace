@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import {
-  Mail, Lock, Eye, EyeOff, Fingerprint, ShieldCheck, Sparkles, Mic, MicOff,
-  QrCode, KeyRound, ArrowRight, Zap, Activity, Globe, Cpu, Users, Building2,
+  Mail, Lock, Eye, EyeOff, ShieldCheck, Sparkles, Mic, MicOff,
+  ArrowRight, Zap, Activity, Globe, Cpu, Users, Building2,
   Code2, Megaphone, Headphones, Handshake, Loader2, CheckCircle2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -122,7 +122,7 @@ const Auth = () => {
     if (/(log ?in|sign in|enter|submit|authenticate)/.test(t)) {
       formRef.current?.requestSubmit();
     } else if (/(forgot|reset).*(password)/.test(t)) {
-      navigate('/auth/forgot-password');
+      navigate('/forgot-password');
     } else if (/show password/.test(t)) {
       setShowPassword(true);
     } else if (/hide password/.test(t)) {
@@ -319,7 +319,7 @@ const Auth = () => {
                   <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="accent-cyan-400" />
                   Remember this device
                 </label>
-                <button type="button" onClick={() => navigate('/auth/forgot-password')} className="text-cyan-300 hover:text-cyan-200">
+                <button type="button" onClick={() => navigate('/forgot-password')} className="text-cyan-300 hover:text-cyan-200">
                   Forgot password?
                 </button>
               </div>
@@ -337,30 +337,6 @@ const Auth = () => {
                 )}
               </Button>
 
-              <div className="flex items-center gap-3 my-2">
-                <div className="flex-1 h-px bg-white/10" />
-                <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500">alternate</span>
-                <div className="flex-1 h-px bg-white/10" />
-              </div>
-
-              <div className="grid grid-cols-3 gap-2">
-                <button type="button" onClick={() => oauth('OTP')} className="flex items-center justify-center gap-1.5 h-10 rounded-md border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] text-xs text-slate-300 transition">
-                  <KeyRound className="w-3.5 h-3.5" /> OTP
-                </button>
-                <button type="button" onClick={() => oauth('QR')} className="flex items-center justify-center gap-1.5 h-10 rounded-md border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] text-xs text-slate-300 transition">
-                  <QrCode className="w-3.5 h-3.5" /> QR
-                </button>
-                <button type="button" onClick={() => oauth('Biometric')} className="flex items-center justify-center gap-1.5 h-10 rounded-md border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] text-xs text-slate-300 transition">
-                  <Fingerprint className="w-3.5 h-3.5" /> Bio
-                </button>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {['Google', 'Microsoft', 'GitHub'].map((p) => (
-                  <button key={p} type="button" onClick={() => oauth(p)} className="h-10 rounded-md border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] text-xs text-slate-300 transition">
-                    {p}
-                  </button>
-                ))}
-              </div>
             </form>
 
             <div className="mt-6 flex items-center justify-between text-[10px] font-mono text-slate-500">
