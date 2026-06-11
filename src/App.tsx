@@ -128,10 +128,13 @@ function App() {
 
                 {/* Auth */}
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/login" element={<RoleBasedLogin />} />
-                <Route path="/unified-login" element={<UnifiedLogin />} />
-                <Route path="/easy-auth" element={<EasyAuth />} />
-                <Route path="/demo-login" element={<DemoLogin />} />
+                {/* All legacy login routes consolidate to the single futuristic /auth gateway */}
+                <Route path="/login" element={<Navigate to="/auth" replace />} />
+                <Route path="/unified-login" element={<Navigate to="/auth" replace />} />
+                <Route path="/easy-auth" element={<Navigate to="/auth" replace />} />
+                <Route path="/demo-login" element={<Navigate to="/auth" replace />} />
+                <Route path="/signin" element={<Navigate to="/auth" replace />} />
+                <Route path="/sign-in" element={<Navigate to="/auth" replace />} />
                 <Route path="/logout" element={<Logout />} />
                 <Route path="/otp-verify" element={<OTPVerify />} />
                 <Route path="/device-verify" element={<DeviceVerify />} />
