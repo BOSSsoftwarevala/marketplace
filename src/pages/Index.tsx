@@ -3315,8 +3315,6 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
   const [heroIndex, setHeroIndex] = useState(0);
-  const geoLocale = useGeoLocale();
-  const festivalBanner = useFestivalBanner(geoLocale.country, geoLocale.countryName);
 
   // Auto-rotate hero every 6s
   useEffect(() => {
@@ -3383,14 +3381,6 @@ const Index = () => {
               <Badge className="bg-white/20 text-white border-0 text-xs px-3 py-1.5">
                 🎉 No Hidden Charges
               </Badge>
-              {festivalBanner && (
-                <Badge
-                  className={`cursor-pointer bg-gradient-to-r ${festivalBanner.gradient} text-white border-0 text-xs px-3 py-1.5 font-bold animate-pulse`}
-                  onClick={() => navigate('/marketplace/offers')}
-                >
-                  {festivalBanner.compactText}
-                </Badge>
-              )}
               {/* Login Button - For regular users */}
               <Button className="bg-white text-orange-600 hover:bg-white/90 font-bold gap-2" onClick={() => void handleAction('login')}>
                   <Lock className="h-4 w-4" />
@@ -3506,41 +3496,8 @@ const Index = () => {
         );
       })()}
 
-      {/* Festival Banner */}
-      {festivalBanner && (
-        <section className="px-4 md:px-12 -mt-8 relative z-20 mb-6">
-          <div className="max-w-[1400px] mx-auto">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className={`relative cursor-pointer rounded-xl overflow-hidden bg-gradient-to-r ${festivalBanner.gradient} p-6 md:p-8`}
-              onClick={() => navigate('/marketplace/offers')}
-            >
-              <div className="absolute inset-0 bg-black/20" />
-              <div className="absolute top-0 right-8 opacity-10 text-[80px]">{festivalBanner.emoji}</div>
-              <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
-                <div>
-                  <h3 className="text-2xl font-extrabold text-white">{festivalBanner.title}</h3>
-                  <p className="text-white/90 text-base font-semibold mt-2">{festivalBanner.subtitle}</p>
-                  <p className="text-white/80 text-sm mt-1">{festivalBanner.note}</p>
-                  <p className="text-white/70 text-xs mt-2">Auto-detected for {festivalBanner.countryName}{festivalBanner.isGlobal ? ' • Global fallback active' : ''}</p>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <Badge className="bg-white text-emerald-700 border-0 text-2xl px-6 py-3 font-extrabold">
-                    {FIXED_OFFER_TEXT}
-                  </Badge>
-                  <Badge className="bg-white/20 text-white border-white/30 text-sm px-4 py-1.5 font-bold backdrop-blur-sm">
-                    Limited time offer for {festivalBanner.countryName}
-                  </Badge>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-      )}
-
       {/* ===== 50 NETFLIX HORIZONTAL ROWS ===== */}
-      <section className="pb-12 px-4 md:px-12 space-y-10">
+      <section className="pt-8 pb-12 px-4 md:px-12 space-y-10">
         <div className="max-w-[1400px] mx-auto space-y-10">
           {NETFLIX_ROWS.map(row => {
             const rowDemos = mergedDemos.filter(row.filter);
