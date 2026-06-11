@@ -15,6 +15,7 @@ import { BossSettings } from './sections/BossSettings';
 import { CodePilot } from './sections/CodePilot';
 import { ServerHosting } from './sections/ServerHosting';
 import { ValaAIModuleContainer } from '@/components/vala-ai-module/ValaAIModuleContainer';
+import { AuthDashboard, AuthManagement } from './sections/AuthControl';
 
 interface BossPanelContext {
   activeSection: BossPanelSection;
@@ -22,7 +23,10 @@ interface BossPanelContext {
 }
 
 export function BossPanelContent() {
-  const { activeSection, streamingOn } = useOutletContext<BossPanelContext>();
+export function BossPanelContent(props?: Partial<BossPanelContext>) {
+  const outletContext = useOutletContext<BossPanelContext | null>();
+  const activeSection = props?.activeSection ?? outletContext?.activeSection ?? 'dashboard';
+  const streamingOn = props?.streamingOn ?? outletContext?.streamingOn ?? true;
 
   const renderSection = () => {
     switch (activeSection) {
@@ -52,6 +56,10 @@ export function BossPanelContent() {
         return <ServerHosting />;
       case 'vala-ai':
         return <ValaAIModuleContainer />;
+      case 'auth-dashboard':
+        return <AuthDashboard />;
+      case 'auth-management':
+        return <AuthManagement />;
       case 'settings':
         return <BossSettings />;
       default:
