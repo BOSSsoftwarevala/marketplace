@@ -22,7 +22,6 @@ interface BossPanelContext {
   streamingOn: boolean;
 }
 
-export function BossPanelContent() {
 export function BossPanelContent(props?: Partial<BossPanelContext>) {
   const outletContext = useOutletContext<BossPanelContext | null>();
   const activeSection = props?.activeSection ?? outletContext?.activeSection ?? 'dashboard';
