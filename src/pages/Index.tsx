@@ -3659,16 +3659,13 @@ const DemoCard = ({ demo, index, isFavorite, onToggleFavorite, localPrice }: {
   const displayPrice = localPrice ? localPrice(demo.discountPrice) : demo.discountPrice;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: Math.min(index * 0.04, 0.4) }}
+    <div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="relative group cursor-pointer"
+      className="relative group cursor-pointer transform-gpu"
     >
       {/* Poster Card */}
-      <div className={`relative rounded-lg overflow-hidden aspect-[3/4] transition-all duration-300 ${isHovered ? 'scale-105 z-30 shadow-2xl shadow-black/80' : 'scale-100 z-0'}`}>
+      <div className="relative rounded-lg overflow-hidden aspect-[3/4] transition-shadow duration-300 hover:shadow-xl hover:shadow-black/50">
         {/* Poster Visual — AI Generated Thumbnail */}
         <img 
           src={getThumbnail(demo)} 
@@ -3711,7 +3708,7 @@ const DemoCard = ({ demo, index, isFavorite, onToggleFavorite, localPrice }: {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm z-20 flex flex-col justify-end p-3"
+              className="absolute inset-0 bg-black/78 z-20 flex flex-col justify-end p-3"
             >
               <h4 className="text-white font-bold text-sm mb-1">{demo.name}</h4>
               <p className="text-slate-400 text-[11px] line-clamp-2 mb-2">{demo.description}</p>
@@ -3812,7 +3809,7 @@ const DemoCard = ({ demo, index, isFavorite, onToggleFavorite, localPrice }: {
           )}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
