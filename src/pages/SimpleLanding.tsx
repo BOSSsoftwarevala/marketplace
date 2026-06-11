@@ -8,7 +8,6 @@ import {
   ChevronRight, MousePointer, Layers, Headphones, Phone,
   Mail, MessageCircle, Award, BadgeCheck, ThumbsUp, Menu, X
 } from 'lucide-react';
-import { PricingBanner } from '@/components/landing/PricingBanner';
 import { LanguageSwitcher } from '@/components/landing/LanguageSwitcher';
 
 const SimpleLanding = () => {
@@ -357,9 +356,6 @@ const SimpleLanding = () => {
           </motion.div>
         </motion.div>
       </section>
-
-      {/* Pricing Banner - HIGHLIGHTED */}
-      <PricingBanner />
 
       {/* Stats Section */}
       <section className="relative py-16 border-y border-white/5 bg-white/[0.01]">
