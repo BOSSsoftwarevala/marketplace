@@ -13,11 +13,11 @@ const ROLE_DASHBOARD_MAP: Record<string, string> = {
   // ═══════════════════════════════════════════
   // TIER 1: BOSS / SUPER ADMIN
   // ═══════════════════════════════════════════
-  boss_owner: '/super-admin',
-  master: '/super-admin',
-  super_admin: '/super-admin',
-  admin: '/super-admin',
-  ceo: '/super-admin',
+  boss_owner: '/boss',
+  master: '/boss',
+  super_admin: '/boss',
+  admin: '/boss',
+  ceo: '/boss',
 
   // ═══════════════════════════════════════════
   // TIER 2: COUNTRY / AREA MANAGEMENT
@@ -129,21 +129,21 @@ const Dashboard = () => {
       return () => clearTimeout(timeoutId);
     }
 
-    // BOSS OWNER: Goes to super admin dashboard (merged master + super_admin)
+    // BOSS OWNER: Goes to the single Command Center (merged boss/super/admin)
     if (isBossOwner) {
-      console.log('[Dashboard] Boss Owner → /super-admin');
+      console.log('[Dashboard] Boss Owner → /boss');
       setStatus('redirecting');
       hasNavigated.current = true;
-      navigate('/super-admin', { replace: true });
+      navigate('/boss', { replace: true });
       return;
     }
 
-    // CEO: Goes to super admin command center
+    // CEO: Goes to the same Command Center
     if (isCEO) {
-      console.log('[Dashboard] CEO → /super-admin');
+      console.log('[Dashboard] CEO → /boss');
       setStatus('redirecting');
       hasNavigated.current = true;
-      navigate('/super-admin', { replace: true });
+      navigate('/boss', { replace: true });
       return;
     }
 

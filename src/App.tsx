@@ -171,12 +171,12 @@ function App() {
                 <Route path="/notifications" element={<RequireAuth><NotificationBuzzerConsole /></RequireAuth>} />
 
                 {/* Boss / Owner / Super Admin */}
-                <Route path="/boss" element={<RequireRole allowed={["boss_owner"]}><BossPanel /></RequireRole>} />
+                <Route path="/boss" element={<RequireRole allowed={["boss_owner", "super_admin", "admin", "ceo"]}><BossPanel /></RequireRole>} />
                 <Route path="/owner" element={<RequireRole allowed={["boss_owner"]}><SoftwareWalaOwnerDashboard /></RequireRole>} />
-                <Route path="/super-admin" element={<RequireRole allowed={["boss_owner", "super_admin"]}><SuperAdminDashboard /></RequireRole>} />
+                <Route path="/super-admin" element={<Navigate to="/boss" replace />} />
 
                 {/* Admin */}
-                <Route path="/admin" element={<RequireRole allowed={["boss_owner", "ceo", "super_admin"]}><SecureAdminDashboard /></RequireRole>} />
+                <Route path="/admin" element={<Navigate to="/boss" replace />} />
                 <Route path="/admin/bulk-users" element={<RequireRole allowed={["boss_owner", "ceo"]}><BulkUserCreation /></RequireRole>} />
                 <Route path="/admin/roles" element={<RequireRole allowed={["boss_owner", "ceo"]}><RoleManagerPage /></RequireRole>} />
 
