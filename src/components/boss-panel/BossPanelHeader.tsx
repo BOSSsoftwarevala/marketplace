@@ -110,12 +110,28 @@ export function BossPanelHeader({ streamingOn, onStreamingToggle }: BossPanelHea
   return (
     <header 
       className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 h-16"
-      style={{ background: 'hsl(217 91% 50%)' }}
+      style={{
+        background: 'linear-gradient(180deg, rgba(8,12,20,0.95) 0%, rgba(5,8,14,0.85) 100%)',
+        backdropFilter: 'blur(18px)',
+        WebkitBackdropFilter: 'blur(18px)',
+        borderBottom: '1px solid rgba(96,165,250,0.15)',
+        boxShadow: '0 1px 0 rgba(255,255,255,0.03) inset, 0 8px 32px rgba(0,0,0,0.5)'
+      }}
     >
       {/* LEFT: Logo Icon Only */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-white">
-          <span className="font-bold text-lg" style={{ color: 'hsl(217 91% 50%)' }}>S</span>
+        <div
+          className="flex items-center justify-center w-10 h-10 rounded-xl"
+          style={{
+            background: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 60%, #0b1220 100%)',
+            boxShadow: '0 0 0 1px rgba(96,165,250,0.35), 0 0 24px rgba(37,99,235,0.35)'
+          }}
+        >
+          <span className="font-black text-lg text-white tracking-tight">S</span>
+        </div>
+        <div className="hidden md:flex flex-col leading-tight">
+          <span className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Software Vala</span>
+          <span className="text-[13px] font-semibold text-white/90">Founder Command Center</span>
         </div>
       </div>
 
