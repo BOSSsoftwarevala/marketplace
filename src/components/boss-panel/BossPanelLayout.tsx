@@ -35,8 +35,8 @@ export function BossPanelLayout({ children }: BossPanelLayoutProps) {
     <div 
       className="min-h-screen flex flex-col"
       style={{ 
-        background: '#F8FAFC',
-        color: '#1E293B'
+        background: 'radial-gradient(ellipse at top, #0b1220 0%, #05070d 60%, #000000 100%)',
+        color: '#e6edf7'
       }}
     >
       {/* Fixed Global Header - LOCKED 64px */}
@@ -59,7 +59,7 @@ export function BossPanelLayout({ children }: BossPanelLayoutProps) {
           className="flex-1 p-6 transition-all duration-300"
           style={{ 
             marginLeft: sidebarCollapsed ? '80px' : '260px',
-            background: '#F8FAFC'
+            background: 'transparent'
           }}
         >
           {children
