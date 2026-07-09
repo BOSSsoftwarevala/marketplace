@@ -250,6 +250,7 @@ function App() {
                 {/* 404 */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </TranslationProvider>
             </GlobalRealtimeProvider>
           </AuthProvider>
         </BrowserRouter>
