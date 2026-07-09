@@ -5,6 +5,7 @@ import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 import { AuthProvider } from "@/hooks/useAuth";
 import { GlobalRealtimeProvider } from "@/providers/GlobalRealtimeProvider";
+import { TranslationProvider } from "@/contexts/TranslationContext";
 
 import RequireAuth from "@/components/auth/RequireAuth";
 import RequireRole from "@/components/auth/RequireRole";
@@ -115,6 +116,7 @@ function App() {
         <BrowserRouter>
           <AuthProvider>
             <GlobalRealtimeProvider>
+              <TranslationProvider>
               <Toaster position="top-right" richColors closeButton />
               <Routes>
                 {/* Public */}
@@ -248,6 +250,7 @@ function App() {
                 {/* 404 */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </TranslationProvider>
             </GlobalRealtimeProvider>
           </AuthProvider>
         </BrowserRouter>
