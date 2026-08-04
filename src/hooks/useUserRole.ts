@@ -390,7 +390,7 @@ export function useSafeAssistConsent() {
 
     // Subscribe to changes
     const channel = supabase
-      .channel('user-safe-assist')
+      .channel(`user-safe-assist-${user.id}-${Date.now().toString(36)}`)
       .on(
         'postgres_changes',
         {

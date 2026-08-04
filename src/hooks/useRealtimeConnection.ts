@@ -34,6 +34,8 @@ const useStableConfig = (config: RealtimeConfig) => {
   return stableConfig;
 };
 
+let instanceCounter = 0;
+
 export const useRealtimeConnection = (config: RealtimeConfig) => {
   const stableConfig = useStableConfig(config);
   const [isConnected, setIsConnected] = useState(false);
@@ -45,6 +47,7 @@ export const useRealtimeConnection = (config: RealtimeConfig) => {
   const maxReconnectAttempts = 5;
   const isCleaningUp = useRef(false);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const uniqueChannelNameRef = useRef<string>(`${stableConfig.channelName}-${++instanceCounter}-${Date.now().toString(36)}`);
 
   // Stable callback refs to prevent recreation
   const onUpdateRef = useRef(config.onUpdate);
@@ -108,7 +111,7 @@ export const useRealtimeConnection = (config: RealtimeConfig) => {
       channelRef.current = null;
     }
 
-    const channel = supabase.channel(stableConfig.channelName, {
+    const channel = supabase.channel(uniqueChannelNameRef.current, {
       config: {
         broadcast: { self: true },
         presence: { key: 'user' }

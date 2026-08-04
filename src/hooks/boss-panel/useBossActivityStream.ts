@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
@@ -22,9 +22,13 @@ export interface ActivityFilter {
   region?: string;
 }
 
+let instanceCounter = 0;
+
 export function useBossActivityStream(streamingOn: boolean = true) {
   const [liveActivities, setLiveActivities] = useState<ActivityItem[]>([]);
-  const [channel, setChannel] = useState<RealtimeChannel | null>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
+  const channelNameRef = useRef<string>(`boss-activity-stream-${++instanceCounter}-${Date.now().toString(36)}`);
+  const mountedRef = useRef(true);
 
   // Fetch initial activities
   const activitiesQuery = useQuery({
@@ -43,16 +47,18 @@ export function useBossActivityStream(streamingOn: boolean = true) {
 
   // Subscribe to realtime updates
   useEffect(() => {
+    mountedRef.current = true;
+
     if (!streamingOn) {
-      if (channel) {
-        supabase.removeChannel(channel);
-        setChannel(null);
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
       }
       return;
     }
 
     const newChannel = supabase
-      .channel('boss-activity-stream')
+      .channel(channelNameRef.current)
       .on(
         'postgres_changes',
         {
@@ -61,16 +67,21 @@ export function useBossActivityStream(streamingOn: boolean = true) {
           table: 'system_activity_log'
         },
         (payload) => {
+          if (!mountedRef.current) return;
           const newActivity = payload.new as ActivityItem;
           setLiveActivities(prev => [newActivity, ...prev].slice(0, 50));
         }
       )
       .subscribe();
 
-    setChannel(newChannel);
+    channelRef.current = newChannel;
 
     return () => {
-      supabase.removeChannel(newChannel);
+      mountedRef.current = false;
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
     };
   }, [streamingOn]);
 
@@ -96,6 +107,6 @@ export function useBossActivityStream(streamingOn: boolean = true) {
     isLoading: activitiesQuery.isLoading,
     error: activitiesQuery.error,
     filterActivities,
-    isStreaming: streamingOn && !!channel
+    isStreaming: streamingOn && !!channelRef.current
   };
 }

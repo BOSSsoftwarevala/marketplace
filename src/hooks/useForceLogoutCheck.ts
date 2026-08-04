@@ -1,11 +1,16 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AUTH_BYPASS } from '@/config/authBypass';
 
+let instanceCounter = 0;
+
 export function useForceLogoutCheck() {
   const navigate = useNavigate();
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const channelNameRef = useRef<string>(`force-logout-${++instanceCounter}-${Date.now().toString(36)}`);
+  const mountedRef = useRef(true);
 
   const checkForceLogout = useCallback(async () => {
     if (AUTH_BYPASS) return false; // TEMPORARY: login gate disabled for testing
@@ -60,14 +65,14 @@ export function useForceLogoutCheck() {
 
   // Subscribe to realtime force logout events
   useEffect(() => {
-    let channel: ReturnType<typeof supabase.channel> | null = null;
+    mountedRef.current = true;
 
     const setupRealtimeSubscription = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user || !mountedRef.current) return;
 
-      channel = supabase
-        .channel('force-logout')
+      const channel = supabase
+        .channel(channelNameRef.current)
         .on(
           'postgres_changes',
           {
@@ -77,6 +82,7 @@ export function useForceLogoutCheck() {
             filter: `user_id=eq.${user.id}`
           },
           (payload) => {
+            if (!mountedRef.current) return;
             const newData = payload.new as any;
             if (newData.force_logged_out_at) {
               checkForceLogout();
@@ -84,13 +90,17 @@ export function useForceLogoutCheck() {
           }
         )
         .subscribe();
+
+      channelRef.current = channel;
     };
 
     setupRealtimeSubscription();
 
     return () => {
-      if (channel) {
-        supabase.removeChannel(channel);
+      mountedRef.current = false;
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
       }
     };
   }, [checkForceLogout]);

@@ -21,6 +21,8 @@ interface GlobalRealtimeContextType {
 
 const GlobalRealtimeContext = createContext<GlobalRealtimeContextType | null>(null);
 
+let providerInstanceCounter = 0;
+
 // Sound effects for notifications
 const playSound = (type: 'task' | 'alert' | 'success' | 'error') => {
   const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -110,7 +112,8 @@ export const GlobalRealtimeProvider: React.FC<{ children: React.ReactNode }> = (
 
   // Setup main realtime channel
   useEffect(() => {
-    const channel = supabase.channel('global-realtime', {
+    const channelName = `global-realtime-${++providerInstanceCounter}-${Date.now().toString(36)}`;
+    const channel = supabase.channel(channelName, {
       config: {
         broadcast: { self: true },
         presence: { key: 'global' }

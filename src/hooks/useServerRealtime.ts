@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -34,12 +34,18 @@ interface UseServerRealtimeReturn {
   stopAutoRefresh: () => void;
 }
 
+let instanceCounter = 0;
+
 export function useServerRealtime(): UseServerRealtimeReturn {
   const [metrics, setMetrics] = useState<Record<string, ServerMetrics>>({});
   const [alerts, setAlerts] = useState<ServerAlert[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [autoRefreshInterval, setAutoRefreshInterval] = useState<NodeJS.Timeout | null>(null);
+  const metricsChannelRef = useRef<RealtimeChannel | null>(null);
+  const alertsChannelRef = useRef<RealtimeChannel | null>(null);
+  const channelNameRef = useRef<string>(`server-realtime-${++instanceCounter}-${Date.now().toString(36)}`);
+  const mountedRef = useRef(true);
 
   // Fetch initial data
   const refreshMetrics = useCallback(async () => {
@@ -77,13 +83,14 @@ export function useServerRealtime(): UseServerRealtimeReturn {
 
   // Subscribe to real-time updates
   useEffect(() => {
-    let metricsChannel: RealtimeChannel;
-    let alertsChannel: RealtimeChannel;
+    mountedRef.current = true;
 
     const setupSubscriptions = async () => {
+      const baseName = channelNameRef.current;
+
       // Subscribe to metrics cache changes
-      metricsChannel = supabase
-        .channel('server-metrics-realtime')
+      const metricsChannel = supabase
+        .channel(`${baseName}-metrics`)
         .on(
           'postgres_changes',
           {
@@ -92,7 +99,7 @@ export function useServerRealtime(): UseServerRealtimeReturn {
             table: 'server_metrics_cache'
           },
           (payload) => {
-            console.log('[ServerRealtime] Metrics update:', payload);
+            if (!mountedRef.current) return;
             if (payload.new) {
               const newMetric = payload.new as ServerMetrics;
               setMetrics(prev => ({
@@ -104,13 +111,13 @@ export function useServerRealtime(): UseServerRealtimeReturn {
           }
         )
         .subscribe((status) => {
-          console.log('[ServerRealtime] Metrics channel:', status);
+          if (!mountedRef.current) return;
           setIsConnected(status === 'SUBSCRIBED');
         });
 
       // Subscribe to alerts
-      alertsChannel = supabase
-        .channel('server-alerts-realtime')
+      const alertsChannel = supabase
+        .channel(`${baseName}-alerts`)
         .on(
           'postgres_changes',
           {
@@ -119,7 +126,7 @@ export function useServerRealtime(): UseServerRealtimeReturn {
             table: 'server_alerts'
           },
           (payload) => {
-            console.log('[ServerRealtime] New alert:', payload);
+            if (!mountedRef.current) return;
             if (payload.new) {
               setAlerts(prev => [payload.new as ServerAlert, ...prev.slice(0, 49)]);
             }
@@ -133,6 +140,7 @@ export function useServerRealtime(): UseServerRealtimeReturn {
             table: 'server_alerts'
           },
           (payload) => {
+            if (!mountedRef.current) return;
             if (payload.new) {
               const updated = payload.new as ServerAlert;
               setAlerts(prev => 
@@ -145,6 +153,9 @@ export function useServerRealtime(): UseServerRealtimeReturn {
         )
         .subscribe();
 
+      metricsChannelRef.current = metricsChannel;
+      alertsChannelRef.current = alertsChannel;
+
       // Initial fetch
       await refreshMetrics();
     };
@@ -152,8 +163,15 @@ export function useServerRealtime(): UseServerRealtimeReturn {
     setupSubscriptions();
 
     return () => {
-      if (metricsChannel) supabase.removeChannel(metricsChannel);
-      if (alertsChannel) supabase.removeChannel(alertsChannel);
+      mountedRef.current = false;
+      if (metricsChannelRef.current) {
+        supabase.removeChannel(metricsChannelRef.current);
+        metricsChannelRef.current = null;
+      }
+      if (alertsChannelRef.current) {
+        supabase.removeChannel(alertsChannelRef.current);
+        alertsChannelRef.current = null;
+      }
     };
   }, [refreshMetrics]);
 
