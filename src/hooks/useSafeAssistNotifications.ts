@@ -3,24 +3,32 @@
  * Triggers notifications when Safe Assist events occur
  */
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useNotificationSound } from '@/hooks/useNotificationSound';
 
+let instanceCounter = 0;
+
 export function useSafeAssistNotifications() {
   const { user, userRole } = useAuth();
   const { addNotification } = useNotifications();
   const { playWarning, playCritical, playInfo } = useNotificationSound(userRole || 'developer');
+  const sessionChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const alertChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const channelNameRef = useRef<string>(`safe-assist-notifications-${++instanceCounter}-${Date.now().toString(36)}`);
+  const mountedRef = useRef(true);
 
   // Subscribe to Safe Assist session events
   useEffect(() => {
+    mountedRef.current = true;
+
     if (!user) return;
 
     // Listen for session changes that are relevant to the user
     const sessionChannel = supabase
-      .channel('safe-assist-notifications')
+      .channel(`${channelNameRef.current}-sessions`)
       .on(
         'postgres_changes',
         {
@@ -29,6 +37,7 @@ export function useSafeAssistNotifications() {
           table: 'safe_assist_sessions',
         },
         async (payload) => {
+          if (!mountedRef.current) return;
           const session = payload.new as any;
           
           // Only notify if user is involved in the session
@@ -67,9 +76,11 @@ export function useSafeAssistNotifications() {
       )
       .subscribe();
 
+    sessionChannelRef.current = sessionChannel;
+
     // Listen for AI alerts
     const alertChannel = supabase
-      .channel('safe-assist-ai-alerts')
+      .channel(`${channelNameRef.current}-alerts`)
       .on(
         'postgres_changes',
         {
@@ -78,6 +89,7 @@ export function useSafeAssistNotifications() {
           table: 'safe_assist_ai_logs',
         },
         async (payload) => {
+          if (!mountedRef.current) return;
           const alert = payload.new as any;
           
           // Only notify managers and relevant roles
@@ -103,9 +115,18 @@ export function useSafeAssistNotifications() {
       )
       .subscribe();
 
+    alertChannelRef.current = alertChannel;
+
     return () => {
-      supabase.removeChannel(sessionChannel);
-      supabase.removeChannel(alertChannel);
+      mountedRef.current = false;
+      if (sessionChannelRef.current) {
+        supabase.removeChannel(sessionChannelRef.current);
+        sessionChannelRef.current = null;
+      }
+      if (alertChannelRef.current) {
+        supabase.removeChannel(alertChannelRef.current);
+        alertChannelRef.current = null;
+      }
     };
   }, [user, userRole, addNotification, playWarning, playCritical, playInfo]);
 }
