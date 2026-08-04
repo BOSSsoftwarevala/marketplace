@@ -10,6 +10,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AccessDeniedUI } from '@/components/error/ErrorUI';
 import { toast } from 'sonner';
+import { AUTH_BYPASS } from '@/config/authBypass';
 // Forbidden routes for User role
 const FORBIDDEN_ROUTES = [
   '/admin',
@@ -48,13 +49,16 @@ export function UserRouteGuard({ children }: UserRouteGuardProps) {
   const isForbidden = FORBIDDEN_ROUTES.some(route => currentPath.startsWith(route));
 
   useEffect(() => {
-    if (loading) return;
+    if (AUTH_BYPASS || loading) return;
     
     // If user role and trying to access forbidden route
     if (isUser && isForbidden) {
       toast.error('Access denied. This area is restricted.');
     }
   }, [isUser, isForbidden, loading]);
+
+  // TEMPORARY: login disabled for testing
+  if (AUTH_BYPASS) return <>{children}</>;
 
   // Show loading state
   if (loading) {
