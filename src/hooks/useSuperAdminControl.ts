@@ -298,23 +298,24 @@ export function useSuperAdminControl() {
     
     loadAll();
 
-    // Set up realtime subscriptions
+    // Set up realtime subscriptions with unique channel names per mount
+    const instanceSuffix = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
     const activityChannel = supabase
-      .channel('role_activity_changes')
+      .channel(`role-activity-changes-${instanceSuffix}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'role_activity_log' }, () => {
         fetchActivities();
       })
       .subscribe();
 
     const approvalChannel = supabase
-      .channel('approval_changes')
+      .channel(`approval-changes-${instanceSuffix}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'sa_approval_queue' }, () => {
         fetchApprovals();
       })
       .subscribe();
 
     const alertChannel = supabase
-      .channel('alert_changes')
+      .channel(`alert-changes-${instanceSuffix}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'system_alerts' }, () => {
         fetchAlerts();
       })
