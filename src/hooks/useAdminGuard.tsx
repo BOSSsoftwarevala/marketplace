@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { AUTH_BYPASS } from '@/config/authBypass';
 
 interface SecurityState {
   isAuthorized: boolean;
@@ -114,7 +115,7 @@ export function useAdminGuard() {
         
         if (remaining <= 0) {
           toast.error('SESSION EXPIRED: Re-authentication required');
-          navigate('/login');
+          (AUTH_BYPASS ? undefined : navigate('/login'));
           return { ...prev, isSystemFrozen: true, sessionTimeRemaining: 0 };
         }
         

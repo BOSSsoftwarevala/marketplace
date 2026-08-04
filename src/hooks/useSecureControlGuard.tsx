@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { AUTH_BYPASS } from '@/config/authBypass';
 
 interface SecurityState {
   sessionStart: Date;
@@ -130,7 +131,7 @@ export function useSecureControlGuard() {
           description: 'Your session has timed out. Redirecting...'
         });
         logSecurityEvent('session_timeout', 'session_expired');
-        setTimeout(() => navigate('/auth'), 2000);
+        setTimeout(() => (AUTH_BYPASS ? undefined : navigate('/auth')), 2000);
       }
     }, 30000); // Check every 30 seconds
 

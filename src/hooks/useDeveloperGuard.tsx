@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { AUTH_BYPASS } from '@/config/authBypass';
 
 // Blocked routes for developers - ZERO POWER principle
 const BLOCKED_ROUTES = [
@@ -96,7 +97,7 @@ export function useDeveloperGuard() {
         // Check user authentication
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-          navigate('/auth', { replace: true });
+          (AUTH_BYPASS ? undefined : navigate('/auth', { replace: true }));
           return;
         }
 
@@ -110,7 +111,7 @@ export function useDeveloperGuard() {
 
         if (!roleData || roleData.approval_status !== 'approved') {
           toast.error('Developer access not approved');
-          navigate('/auth', { replace: true });
+          (AUTH_BYPASS ? undefined : navigate('/auth', { replace: true }));
           return;
         }
 
