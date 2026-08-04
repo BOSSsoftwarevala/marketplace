@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode, useCallback,
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
+import { AUTH_BYPASS } from '@/config/authBypass';
 
 type AppRole = Database['public']['Enums']['app_role'];
 
