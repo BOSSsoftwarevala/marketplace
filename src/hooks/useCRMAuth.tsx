@@ -1,6 +1,7 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { AUTH_BYPASS } from '@/config/authBypass';
 
 interface AuthContextType {
   user: User | null;
@@ -57,8 +58,21 @@ export const CRMAuthProvider = ({ children }: { children: React.ReactNode }) => 
     await supabase.auth.signOut();
   };
 
+  const bypassUser = {
+    id: '00000000-0000-0000-0000-000000000000',
+    email: 'test@local.dev',
+    app_metadata: {},
+    user_metadata: {},
+    aud: 'authenticated',
+    created_at: new Date().toISOString(),
+  } as unknown as User;
+
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{
+      user: AUTH_BYPASS ? (user ?? bypassUser) : user,
+      session,
+      isLoading: AUTH_BYPASS ? false : isLoading,
+      signUp, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
