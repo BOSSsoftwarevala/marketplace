@@ -1,6 +1,7 @@
 // Centralized API Service with Authentication, Error Handling, and Role-Based Access
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { AUTH_BYPASS } from '@/config/authBypass';
 
 interface APIResponse<T = any> {
   success: boolean;
@@ -38,6 +39,7 @@ class APIService {
   }
 
   private handleAuthError(): void {
+    if (AUTH_BYPASS) return; // TEMPORARY: login gate disabled for testing
     toast.error("Session expired. Please log in again.");
     supabase.auth.signOut();
     window.location.href = '/auth';

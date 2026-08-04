@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { AUTH_BYPASS } from '@/config/authBypass';
 
 // ============================================
 // SUPER ADMIN SECURITY GUARD
@@ -58,7 +59,7 @@ export const useSuperAdminGuard = () => {
     const interval = setInterval(() => {
       if (Date.now() > securityState.sessionExpiry) {
         toast.error('Session expired. Please re-authenticate.');
-        navigate('/auth');
+        (AUTH_BYPASS ? undefined : navigate('/auth'));
       }
     }, 30000);
 

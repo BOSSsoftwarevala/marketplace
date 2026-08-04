@@ -2,11 +2,13 @@ import { useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { AUTH_BYPASS } from '@/config/authBypass';
 
 export function useForceLogoutCheck() {
   const navigate = useNavigate();
 
   const checkForceLogout = useCallback(async () => {
+    if (AUTH_BYPASS) return false; // TEMPORARY: login gate disabled for testing
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;

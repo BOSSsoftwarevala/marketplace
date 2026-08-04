@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode, useCallback,
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
+import { AUTH_BYPASS } from '@/config/authBypass';
 
 type AppRole = Database['public']['Enums']['app_role'];
 
@@ -400,17 +401,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // TEMPORARY TESTING MODE: no login gate anywhere.
+  const bypassUser = {
+    id: '00000000-0000-0000-0000-000000000000',
+    email: 'test@local.dev',
+    app_metadata: {},
+    user_metadata: { full_name: 'Test User' },
+    aud: 'authenticated',
+    created_at: new Date().toISOString(),
+  } as unknown as User;
+
   return (
     <AuthContext.Provider value={{ 
-      user, 
+      user: AUTH_BYPASS ? (user ?? bypassUser) : user, 
       session, 
-      loading, 
-      userRole, 
-      approvalStatus,
-      isPrivileged,
-      isBossOwner,
-      isCEO,
-      wasForceLoggedOut,
+      loading: AUTH_BYPASS ? false : loading, 
+      userRole: AUTH_BYPASS ? ((userRole ?? 'boss_owner') as AppRole) : userRole, 
+      approvalStatus: AUTH_BYPASS ? 'approved' : approvalStatus,
+      isPrivileged: AUTH_BYPASS ? true : isPrivileged,
+      isBossOwner: AUTH_BYPASS ? true : isBossOwner,
+      isCEO: AUTH_BYPASS ? true : isCEO,
+      wasForceLoggedOut: AUTH_BYPASS ? false : wasForceLoggedOut,
       signUp, 
       signIn,
       signOut,

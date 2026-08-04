@@ -2,6 +2,7 @@ import { useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { AUTH_BYPASS } from '@/config/authBypass';
 
 interface SessionTimeoutOptions {
   timeoutMinutes?: number;
@@ -28,6 +29,7 @@ export function useSessionTimeout(options: SessionTimeoutOptions = {}) {
   }, []);
 
   const handleTimeout = useCallback(async () => {
+    if (AUTH_BYPASS) return; // TEMPORARY: login gate disabled for testing
     toast.error('Your session has expired due to inactivity');
     
     try {
