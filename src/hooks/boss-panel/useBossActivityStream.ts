@@ -107,6 +107,6 @@ export function useBossActivityStream(streamingOn: boolean = true) {
     isLoading: activitiesQuery.isLoading,
     error: activitiesQuery.error,
     filterActivities,
-    isStreaming: streamingOn && !!channel
+    isStreaming: streamingOn && !!channelRef.current
   };
 }
