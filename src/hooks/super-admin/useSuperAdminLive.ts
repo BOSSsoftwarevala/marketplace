@@ -21,6 +21,8 @@ interface LiveState {
   };
 }
 
+let instanceCounter = 0;
+
 export function useSuperAdminLive() {
   const [state, setState] = useState<LiveState>({
     isConnected: false,
@@ -33,9 +35,12 @@ export function useSuperAdminLive() {
   });
   
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const channelNameRef = useRef<string>(`super-admin-live-${++instanceCounter}-${Date.now().toString(36)}`);
+  const mountedRef = useRef(true);
   const maxActivities = 50;
 
   const addActivity = useCallback((activity: LiveActivity) => {
+    if (!mountedRef.current) return;
     setState(prev => ({
       ...prev,
       activities: [activity, ...prev.activities].slice(0, maxActivities)
@@ -48,13 +53,14 @@ export function useSuperAdminLive() {
       if (!authData.session) return;
 
       // Subscribe to realtime channels
-      const channel = supabase.channel('super-admin-live')
+      const channel = supabase.channel(channelNameRef.current)
         // Activity log changes
         .on('postgres_changes', {
           event: 'INSERT',
           schema: 'public',
           table: 'super_admin_activity_log'
         }, (payload) => {
+          if (!mountedRef.current) return;
           const data = payload.new as Record<string, unknown>;
           addActivity({
             id: data.id as string,
@@ -72,6 +78,7 @@ export function useSuperAdminLive() {
           schema: 'public',
           table: 'super_admin_security_events'
         }, (payload) => {
+          if (!mountedRef.current) return;
           const data = payload.new as Record<string, unknown>;
           addActivity({
             id: data.id as string,
@@ -98,6 +105,7 @@ export function useSuperAdminLive() {
           schema: 'public',
           table: 'user_status_history'
         }, (payload) => {
+          if (!mountedRef.current) return;
           const data = payload.new as Record<string, unknown>;
           addActivity({
             id: data.id as string,
@@ -115,6 +123,7 @@ export function useSuperAdminLive() {
           schema: 'public',
           table: 'system_locks'
         }, (payload) => {
+          if (!mountedRef.current) return;
           const data = payload.new as Record<string, unknown>;
           const isLocked = !data.unlocked_at;
           addActivity({
@@ -128,7 +137,10 @@ export function useSuperAdminLive() {
           });
         })
         .subscribe((status) => {
-          console.log('[SuperAdmin Live] Channel status:', status);
+          if (!mountedRef.current) {
+            supabase.removeChannel(channel);
+            return;
+          }
           setState(prev => ({
             ...prev,
             isConnected: status === 'SUBSCRIBED'
