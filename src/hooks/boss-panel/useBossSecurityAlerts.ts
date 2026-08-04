@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
@@ -16,9 +16,13 @@ export interface SecurityAlert {
   resolved_by: string | null;
 }
 
+let instanceCounter = 0;
+
 export function useBossSecurityAlerts() {
   const [liveAlerts, setLiveAlerts] = useState<SecurityAlert[]>([]);
-  const [channel, setChannel] = useState<RealtimeChannel | null>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
+  const channelNameRef = useRef<string>(`boss-security-alerts-${++instanceCounter}-${Date.now().toString(36)}`);
+  const mountedRef = useRef(true);
 
   const alertsQuery = useQuery({
     queryKey: ['boss-security-alerts'],
@@ -36,8 +40,10 @@ export function useBossSecurityAlerts() {
 
   // Subscribe to realtime alerts
   useEffect(() => {
-    const newChannel = supabase
-      .channel('boss-security-alerts')
+    mountedRef.current = true;
+
+    const channel = supabase
+      .channel(channelNameRef.current)
       .on(
         'postgres_changes',
         {
@@ -46,16 +52,21 @@ export function useBossSecurityAlerts() {
           table: 'security_alerts'
         },
         (payload) => {
+          if (!mountedRef.current) return;
           const newAlert = payload.new as SecurityAlert;
           setLiveAlerts(prev => [newAlert, ...prev].slice(0, 20));
         }
       )
       .subscribe();
 
-    setChannel(newChannel);
+    channelRef.current = channel;
 
     return () => {
-      supabase.removeChannel(newChannel);
+      mountedRef.current = false;
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
     };
   }, []);
 
