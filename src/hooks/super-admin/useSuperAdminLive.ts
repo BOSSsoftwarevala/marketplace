@@ -201,10 +201,12 @@ export function useSuperAdminLive() {
 
   // Auto-connect on mount
   useEffect(() => {
+    mountedRef.current = true;
     connect();
     fetchInitialStats();
     
     return () => {
+      mountedRef.current = false;
       disconnect();
     };
   }, [connect, disconnect, fetchInitialStats]);
