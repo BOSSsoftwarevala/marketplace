@@ -3,6 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { AUTH_BYPASS } from "@/config/authBypass";
 
 type RequireRoleProps = {
   allowed: string[];
@@ -43,7 +44,7 @@ export default function RequireRole({ allowed, children, masterOnly = false }: R
 
   // Log unauthorized access attempts (only once per mount)
   useEffect(() => {
-    if (loading || hasLoggedRef.current) return;
+    if (AUTH_BYPASS || loading || hasLoggedRef.current) return;
 
     const shouldLog = () => {
       // No user - not authenticated
@@ -83,6 +84,9 @@ export default function RequireRole({ allowed, children, masterOnly = false }: R
       logUnauthorizedAccess(user.id, userRole, location.pathname, reason);
     }
   }, [user, userRole, loading, approvalStatus, isBossOwner, masterOnly, allowed, location.pathname]);
+
+  // TEMPORARY: login disabled for testing
+  if (AUTH_BYPASS) return <>{children}</>;
 
   if (loading) {
     return (
