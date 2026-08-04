@@ -114,7 +114,7 @@ export function useBossPendingActions() {
   // Subscribe to realtime updates
   useEffect(() => {
     const channel = supabase
-      .channel('boss-pending-realtime')
+      .channel(`boss-pending-realtime-${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'approvals' },
