@@ -33,13 +33,11 @@ export function useBossSecurityAlerts() {
     }
   });
 
-  // Subscribe to realtime alerts
-  useEffect(() => {
-    mountedRef.current = true;
-
-    const channel = supabase
-      .channel(channelNameRef.current)
-      .on(
+  // Subscribe to realtime alerts via the shared channel factory
+  useRealtimeSubscription({
+    name: 'boss-security-alerts',
+    configure: (channel) =>
+      channel.on(
         'postgres_changes',
         {
           event: 'INSERT',
@@ -47,23 +45,11 @@ export function useBossSecurityAlerts() {
           table: 'security_alerts'
         },
         (payload) => {
-          if (!mountedRef.current) return;
           const newAlert = payload.new as SecurityAlert;
           setLiveAlerts(prev => [newAlert, ...prev].slice(0, 20));
         }
       )
-      .subscribe();
-
-    channelRef.current = channel;
-
-    return () => {
-      mountedRef.current = false;
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
-    };
-  }, []);
+  });
 
   const allAlerts = [...liveAlerts, ...(alertsQuery.data || [])]
     .filter((alert, index, self) => 
