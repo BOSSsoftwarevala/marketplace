@@ -10,11 +10,10 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
-
-let globalInstanceCounter = 0;
+import { makeChannelName } from './channelFactory';
 
 export function useUniqueChannelName(baseName: string): string {
-  const instanceId = useRef<string>(`${baseName}-${++globalInstanceCounter}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`);
+  const instanceId = useRef<string>(makeChannelName(baseName));
   return instanceId.current;
 }
 
