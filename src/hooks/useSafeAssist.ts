@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { makeChannelName } from '@/lib/realtime/channelFactory';
 
 interface SafeAssistSession {
   id: string;
@@ -46,6 +47,7 @@ export function useSafeAssist() {
   const [userCode, setUserCode] = useState<string>('');
   const [agentCode, setAgentCode] = useState<string>('');
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const notificationChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   // Generate verification codes
   const generateCodes = useCallback(() => {
@@ -185,6 +187,10 @@ export function useSafeAssist() {
       });
       
       // Cleanup
+      if (notificationChannelRef.current) {
+        supabase.removeChannel(notificationChannelRef.current);
+        notificationChannelRef.current = null;
+      }
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
       }
@@ -237,7 +243,7 @@ export function useSafeAssist() {
     channelRef.current = channel;
 
     // Subscribe to notifications (realtime)
-    const notificationChannel = supabase.channel(`notifications_${sessionId}`)
+    const notificationChannel = supabase.channel(makeChannelName(`notifications_${sessionId}`))
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
@@ -257,6 +263,8 @@ export function useSafeAssist() {
         }
       })
       .subscribe();
+
+    notificationChannelRef.current = notificationChannel;
   }, []);
 
   // Fetch notifications
@@ -290,6 +298,10 @@ export function useSafeAssist() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      if (notificationChannelRef.current) {
+        supabase.removeChannel(notificationChannelRef.current);
+        notificationChannelRef.current = null;
+      }
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
       }

@@ -15,6 +15,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { makeChannelName } from '@/lib/realtime/channelFactory';
 
 // Forbidden routes for User role - will be blocked
 const FORBIDDEN_ROUTES = [
@@ -390,7 +391,7 @@ export function useSafeAssistConsent() {
 
     // Subscribe to changes
     const channel = supabase
-      .channel(`user-safe-assist-${user.id}-${Date.now().toString(36)}`)
+      .channel(makeChannelName(`user-safe-assist-${user.id}`))
       .on(
         'postgres_changes',
         {
