@@ -47,6 +47,7 @@ export function useSafeAssist() {
   const [userCode, setUserCode] = useState<string>('');
   const [agentCode, setAgentCode] = useState<string>('');
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const notificationChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   // Generate verification codes
   const generateCodes = useCallback(() => {
@@ -186,6 +187,10 @@ export function useSafeAssist() {
       });
       
       // Cleanup
+      if (notificationChannelRef.current) {
+        supabase.removeChannel(notificationChannelRef.current);
+        notificationChannelRef.current = null;
+      }
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
       }
@@ -258,6 +263,8 @@ export function useSafeAssist() {
         }
       })
       .subscribe();
+
+    notificationChannelRef.current = notificationChannel;
   }, []);
 
   // Fetch notifications
@@ -291,6 +298,10 @@ export function useSafeAssist() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      if (notificationChannelRef.current) {
+        supabase.removeChannel(notificationChannelRef.current);
+        notificationChannelRef.current = null;
+      }
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
       }
