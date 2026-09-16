@@ -46,13 +46,13 @@ export const useRealtimeChat = (taskId?: string | null) => {
     staleTime: 0
   });
 
-  // Realtime subscription for chat messages
-  useEffect(() => {
-    if (!taskId) return;
-
-    const channel = supabase
-      .channel(`chat-${taskId}`)
-      .on(
+  // Realtime subscription for chat messages (shared channel factory)
+  useRealtimeSubscription({
+    name: `chat-${taskId ?? 'none'}`,
+    enabled: !!taskId,
+    deps: [taskId, queryClient],
+    configure: (channel) =>
+      channel.on(
         'postgres_changes',
         {
           event: 'INSERT',
@@ -60,17 +60,11 @@ export const useRealtimeChat = (taskId?: string | null) => {
           table: 'chat_messages',
           filter: `thread_id=eq.${taskId}`
         },
-        (payload) => {
-          console.log('New chat message:', payload);
+        () => {
           queryClient.invalidateQueries({ queryKey: ['task-chat', taskId] });
         }
       )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [taskId, queryClient]);
+  });
 
   // Send message mutation
   const sendMessage = useMutation({
