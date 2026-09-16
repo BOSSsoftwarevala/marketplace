@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useNotificationSound } from '@/hooks/useNotificationSound';
+import { makeChannelName } from '@/lib/realtime';
 
 export function usePromiseNotifications() {
   const { user, userRole } = useAuth();
@@ -19,7 +20,7 @@ export function usePromiseNotifications() {
 
     // Listen for promise log changes
     const promiseChannel = supabase
-      .channel('promise-notifications')
+      .channel(makeChannelName('promise-notifications'))
       .on(
         'postgres_changes',
         {
@@ -77,7 +78,7 @@ export function usePromiseNotifications() {
 
     // Listen for fines
     const finesChannel = supabase
-      .channel('promise-fines-notifications')
+      .channel(makeChannelName('promise-fines-notifications'))
       .on(
         'postgres_changes',
         {
