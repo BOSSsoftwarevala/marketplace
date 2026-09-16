@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Clock, Shield, CheckCircle, XCircle, Loader2, Bell } from "lucide-react";
+import { makeChannelName } from '@/lib/realtime/channelFactory';
 
 interface SuperAdminApprovalPendingProps {
   isOpen: boolean;
@@ -34,7 +35,7 @@ export function SuperAdminApprovalPending({
 
     // Subscribe to real-time updates
     const channel = supabase
-      .channel(`approval-${approvalQueueId}`)
+      .channel(makeChannelName(`approval-${approvalQueueId}`))
       .on(
         'postgres_changes',
         {

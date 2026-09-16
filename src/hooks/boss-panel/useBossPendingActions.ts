@@ -7,6 +7,7 @@
 import { useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { makeChannelName } from '@/lib/realtime/channelFactory';
 
 export interface PendingApproval {
   id: string;
@@ -114,7 +115,7 @@ export function useBossPendingActions() {
   // Subscribe to realtime updates
   useEffect(() => {
     const channel = supabase
-      .channel(`boss-pending-realtime-${Math.random().toString(36).slice(2)}`)
+      .channel(makeChannelName('boss-pending-realtime'))
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'approvals' },

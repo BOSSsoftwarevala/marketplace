@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { makeChannelName } from '@/lib/realtime/channelFactory';
 
 interface SafeAssistSession {
   id: string;
@@ -237,7 +238,7 @@ export function useSafeAssist() {
     channelRef.current = channel;
 
     // Subscribe to notifications (realtime)
-    const notificationChannel = supabase.channel(`notifications_${sessionId}`)
+    const notificationChannel = supabase.channel(makeChannelName(`notifications_${sessionId}`))
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
