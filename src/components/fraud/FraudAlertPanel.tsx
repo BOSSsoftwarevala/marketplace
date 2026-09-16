@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { makeChannelName } from '@/lib/realtime';
 
 interface FraudAlert {
   id: string;
@@ -38,7 +39,7 @@ export function FraudAlertPanel() {
     
     // Subscribe to realtime updates
     const channel = supabase
-      .channel('fraud-alerts')
+      .channel(makeChannelName('fraud-alerts'))
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'fraud_alerts' }, 
         (payload) => {
           setAlerts(prev => [payload.new as FraudAlert, ...prev]);

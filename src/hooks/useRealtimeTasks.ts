@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import { makeChannelName } from '@/lib/realtime';
 
 export interface DeveloperTask {
   id: string;
@@ -58,7 +59,7 @@ export const useRealtimeTasks = (developerId?: string) => {
   // Setup realtime subscription
   useEffect(() => {
     const channel = supabase
-      .channel('tasks-realtime')
+      .channel(makeChannelName('tasks-realtime'))
       .on(
         'postgres_changes',
         {

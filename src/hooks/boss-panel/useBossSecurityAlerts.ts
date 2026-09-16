@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { RealtimeChannel } from '@supabase/supabase-js';
+import { useRealtimeSubscription } from '@/lib/realtime';
 
 export interface SecurityAlert {
   alert_id: string;
@@ -16,13 +16,8 @@ export interface SecurityAlert {
   resolved_by: string | null;
 }
 
-let instanceCounter = 0;
-
 export function useBossSecurityAlerts() {
   const [liveAlerts, setLiveAlerts] = useState<SecurityAlert[]>([]);
-  const channelRef = useRef<RealtimeChannel | null>(null);
-  const channelNameRef = useRef<string>(`boss-security-alerts-${++instanceCounter}-${Date.now().toString(36)}`);
-  const mountedRef = useRef(true);
 
   const alertsQuery = useQuery({
     queryKey: ['boss-security-alerts'],
@@ -38,13 +33,11 @@ export function useBossSecurityAlerts() {
     }
   });
 
-  // Subscribe to realtime alerts
-  useEffect(() => {
-    mountedRef.current = true;
-
-    const channel = supabase
-      .channel(channelNameRef.current)
-      .on(
+  // Subscribe to realtime alerts via the shared channel factory
+  useRealtimeSubscription({
+    name: 'boss-security-alerts',
+    configure: (channel) =>
+      channel.on(
         'postgres_changes',
         {
           event: 'INSERT',
@@ -52,23 +45,11 @@ export function useBossSecurityAlerts() {
           table: 'security_alerts'
         },
         (payload) => {
-          if (!mountedRef.current) return;
           const newAlert = payload.new as SecurityAlert;
           setLiveAlerts(prev => [newAlert, ...prev].slice(0, 20));
         }
       )
-      .subscribe();
-
-    channelRef.current = channel;
-
-    return () => {
-      mountedRef.current = false;
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
-    };
-  }, []);
+  });
 
   const allAlerts = [...liveAlerts, ...(alertsQuery.data || [])]
     .filter((alert, index, self) => 

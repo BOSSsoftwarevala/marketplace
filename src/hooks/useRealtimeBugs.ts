@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useEffect } from 'react';
+import { useRealtimeSubscription } from '@/lib/realtime';
 import { toast } from 'sonner';
 
 export interface Bug {
@@ -56,11 +56,12 @@ export const useRealtimeBugs = (developerId?: string) => {
     staleTime: 0
   });
 
-  // Realtime subscription
-  useEffect(() => {
-    const channel = supabase
-      .channel('bugs-realtime')
-      .on(
+  // Realtime subscription (shared channel factory)
+  useRealtimeSubscription({
+    name: 'bugs-realtime',
+    deps: [queryClient],
+    configure: (channel) =>
+      channel.on(
         'postgres_changes',
         {
           event: '*',
@@ -68,20 +69,14 @@ export const useRealtimeBugs = (developerId?: string) => {
           table: 'developer_violations'
         },
         (payload) => {
-          console.log('Bug/Violation change:', payload);
           queryClient.invalidateQueries({ queryKey: ['developer-bugs'] });
-          
+
           if (payload.eventType === 'INSERT') {
             toast.warning('New issue reported!');
           }
         }
       )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
+  });
 
   // Mark as fixed (acknowledge)
   const markFixed = useMutation({

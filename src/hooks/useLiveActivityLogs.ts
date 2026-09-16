@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
+import { makeChannelName } from '@/lib/realtime';
 
 export type ActivityActionType = 
   | 'login'
@@ -191,7 +192,7 @@ export function useLiveActivityLogs(options: UseLiveActivityLogsOptions = {}) {
     if (!user) return;
 
     const logsChannel = supabase
-      .channel('live-activity-logs')
+      .channel(makeChannelName('live-activity-logs'))
       .on(
         'postgres_changes',
         {
@@ -210,7 +211,7 @@ export function useLiveActivityLogs(options: UseLiveActivityLogsOptions = {}) {
       .subscribe();
 
     const statusChannel = supabase
-      .channel('user-online-status')
+      .channel(makeChannelName('user-online-status'))
       .on(
         'postgres_changes',
         {

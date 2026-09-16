@@ -4,6 +4,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { makeChannelName } from '@/lib/realtime';
 
 // ═══════════════════════════════════════════
 // TYPES
@@ -374,7 +375,7 @@ export async function getLiveActivity(limit = 50): Promise<any[]> {
 
 export function subscribeLiveActivity(callback: (payload: any) => void) {
   const channel = supabase
-    .channel('live-activity')
+    .channel(makeChannelName('live-activity'))
     .on(
       'postgres_changes',
       {

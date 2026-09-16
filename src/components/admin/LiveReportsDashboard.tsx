@@ -19,6 +19,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { format, subDays, subWeeks, subMonths } from "date-fns";
+import { makeChannelName } from '@/lib/realtime';
 
 interface ReportStats {
   totalUsers: number;
@@ -147,7 +148,7 @@ export default function LiveReportsDashboard() {
   // Real-time subscription for online status
   useEffect(() => {
     const channel = supabase
-      .channel('online-status')
+      .channel(makeChannelName('online-status'))
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'user_online_status' },

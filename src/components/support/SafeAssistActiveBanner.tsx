@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { makeChannelName } from '@/lib/realtime';
 
 interface ActiveSession {
   id: string;
@@ -52,7 +53,7 @@ export function SafeAssistActiveBanner() {
 
     // Subscribe to session changes
     const channel = supabase
-      .channel('active-session-banner')
+      .channel(makeChannelName('active-session-banner'))
       .on('postgres_changes', {
         event: '*',
         schema: 'public',

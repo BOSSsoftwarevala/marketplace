@@ -8,6 +8,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from './useAuth';
+import { makeChannelName } from '@/lib/realtime';
 
 // Types
 export interface PromiseManagerMetrics {
@@ -406,7 +407,7 @@ export function usePromiseRealtime(onUpdate: () => void) {
     queryKey: ['promise-realtime'],
     queryFn: async () => {
       const channel = supabase
-        .channel('promise-changes')
+        .channel(makeChannelName('promise-changes'))
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'promise_logs' },
