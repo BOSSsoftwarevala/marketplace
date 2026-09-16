@@ -16,6 +16,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { makeChannelName } from '@/lib/realtime';
 
 // Forbidden routes for Prime User - ZERO admin access
 const FORBIDDEN_ROUTES = [
@@ -473,7 +474,7 @@ export function usePrimeSafeAssist() {
 
     // Real-time subscription
     const channel = supabase
-      .channel('prime-safe-assist')
+      .channel(makeChannelName('prime-safe-assist'))
       .on(
         'postgres_changes',
         {

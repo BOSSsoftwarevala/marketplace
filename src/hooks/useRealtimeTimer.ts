@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { makeChannelName } from '@/lib/realtime';
 
 export interface TimerState {
   isRunning: boolean;
@@ -69,7 +70,7 @@ export const useRealtimeTimer = () => {
   // Realtime subscription for timer updates
   useEffect(() => {
     const channel = supabase
-      .channel('timer-realtime')
+      .channel(makeChannelName('timer-realtime'))
       .on(
         'postgres_changes',
         {

@@ -24,6 +24,7 @@ import { MarketingModuleContainer } from "@/components/marketing-module/Marketin
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { makeChannelName } from '@/lib/realtime';
 
 // ===== BOX TYPES =====
 type BoxType = 'data' | 'process' | 'ai' | 'approval' | 'live';
@@ -170,7 +171,7 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
     console.log('Setting up realtime subscriptions for new applications...');
     
     const channel = supabase
-      .channel('boss-approval-notifications')
+      .channel(makeChannelName('boss-approval-notifications'))
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'reseller_applications' },

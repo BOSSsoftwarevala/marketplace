@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect } from 'react';
+import { makeChannelName } from '@/lib/realtime';
 
 export interface PromiseLog {
   id: string;
@@ -41,7 +42,7 @@ export function useActivePromises() {
 
   useEffect(() => {
     const channel = supabase
-      .channel('promise-logs-realtime')
+      .channel(makeChannelName('promise-logs-realtime'))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'promise_logs' }, () => {
         queryClient.invalidateQueries({ queryKey: ['active-promises'] });
         queryClient.invalidateQueries({ queryKey: ['promise-metrics'] });

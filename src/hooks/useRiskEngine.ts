@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { makeChannelName } from '@/lib/realtime';
 
 interface RiskScore {
   user_id: string;
@@ -363,7 +364,7 @@ export function useRiskEngine() {
   // Subscribe to real-time alerts
   useEffect(() => {
     const channel = supabase
-      .channel('risk-alerts')
+      .channel(makeChannelName('risk-alerts'))
       .on(
         'postgres_changes',
         {

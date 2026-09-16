@@ -29,6 +29,7 @@ import { useDemoManagerAccess } from "@/hooks/useDemoManagerAccess";
 import { DemoReportCardsList } from "@/components/demo-manager/DemoReportCard";
 import { DemoAccessGate } from "@/components/demo-manager/DemoAccessGate";
 import { isDemoTestMode } from "@/contexts/DemoTestModeContext";
+import { makeChannelName } from '@/lib/realtime';
 
 interface Demo {
   id: string;
@@ -145,7 +146,7 @@ export default function DemoManagerPanel() {
     if (isDemoTestMode()) return;
     
     const channel = supabase
-      .channel('demo-alerts')
+      .channel(makeChannelName('demo-alerts'))
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'demo_alerts' },

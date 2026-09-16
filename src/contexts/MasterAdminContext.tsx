@@ -6,6 +6,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { makeChannelName } from '@/lib/realtime';
 import {
   blackbox,
   checkSystemLock,
@@ -344,7 +345,7 @@ export function MasterAdminProvider({ children }: { children: ReactNode }) {
   // Subscribe to system lock changes
   useEffect(() => {
     const channel = supabase
-      .channel('system-locks')
+      .channel(makeChannelName('system-locks'))
       .on(
         'postgres_changes',
         {

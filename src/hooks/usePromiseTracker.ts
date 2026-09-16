@@ -7,6 +7,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect, useState, useCallback } from 'react';
+import { makeChannelName } from '@/lib/realtime';
 
 // Types
 export interface TrackerMetrics {
@@ -272,7 +273,7 @@ export function useTrackerRealtime() {
 
   useEffect(() => {
     const channel = supabase
-      .channel('promise-tracker-realtime')
+      .channel(makeChannelName('promise-tracker-realtime'))
       .on(
         'postgres_changes',
         {

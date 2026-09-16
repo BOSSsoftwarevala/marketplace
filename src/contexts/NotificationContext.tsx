@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import type { NotificationAlert, NotificationType } from '@/components/shared/GlobalNotificationHeader';
+import { makeChannelName } from '@/lib/realtime';
 
 interface NotificationContextType {
   notifications: NotificationAlert[];
@@ -83,7 +84,7 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
     fetchNotifications();
 
     const channel = supabase
-      .channel('user-notifications')
+      .channel(makeChannelName('user-notifications'))
       .on(
         'postgres_changes',
         {

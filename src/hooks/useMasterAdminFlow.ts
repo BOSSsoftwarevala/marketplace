@@ -7,6 +7,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { makeChannelName } from '@/lib/realtime';
 import {
   blackbox,
   checkAccess,
@@ -547,7 +548,7 @@ export function useRiskMonitoring() {
 
     // Subscribe to changes
     const channel = supabase
-      .channel('risk-updates')
+      .channel(makeChannelName('risk-updates'))
       .on(
         'postgres_changes',
         {

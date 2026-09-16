@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { SafeAssistActiveBanner } from './SafeAssistActiveBanner';
+import { makeChannelName } from '@/lib/realtime';
 
 // Forbidden routes - absolute no access during Safe Assist
 const FORBIDDEN_ROUTES = new Set([
@@ -214,7 +215,7 @@ export function SafeAssistSecurityProvider({ children }: Props) {
     if (!user?.id) return;
 
     const channel = supabase
-      .channel('safe-assist-security')
+      .channel(makeChannelName('safe-assist-security'))
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
