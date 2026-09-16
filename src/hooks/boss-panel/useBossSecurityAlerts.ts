@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { RealtimeChannel } from '@supabase/supabase-js';
+import { useRealtimeSubscription } from '@/lib/realtime';
 
 export interface SecurityAlert {
   alert_id: string;
@@ -16,13 +16,8 @@ export interface SecurityAlert {
   resolved_by: string | null;
 }
 
-let instanceCounter = 0;
-
 export function useBossSecurityAlerts() {
   const [liveAlerts, setLiveAlerts] = useState<SecurityAlert[]>([]);
-  const channelRef = useRef<RealtimeChannel | null>(null);
-  const channelNameRef = useRef<string>(`boss-security-alerts-${++instanceCounter}-${Date.now().toString(36)}`);
-  const mountedRef = useRef(true);
 
   const alertsQuery = useQuery({
     queryKey: ['boss-security-alerts'],
