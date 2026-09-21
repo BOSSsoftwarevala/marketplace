@@ -172,8 +172,30 @@ const Auth = () => {
   const onSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     if (!validate()) { setAiState('error'); return; }
+    if (mode === 'signup' && fullName.trim().length < 2) {
+      setAiState('error');
+      toast.error('Please enter your full name');
+      return;
+    }
     setAiState('processing');
     try {
+      if (mode === 'signup') {
+        const { error } = await signUp(email, password, 'client', fullName.trim());
+        if (error) {
+          setAiState('error');
+          toast.error(error.message.includes('already registered')
+            ? 'This email already has an account. Sign in instead.'
+            : error.message);
+          return;
+        }
+        setAiState('success');
+        toast.success('Account created. Check your email to confirm, then sign in.');
+        setMode('signin');
+        setPassword('');
+        setAiState('idle');
+        return;
+      }
+
       const { error } = await signIn(email, password);
       if (error) {
         setAiState('error');
