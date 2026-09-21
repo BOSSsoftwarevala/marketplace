@@ -369,10 +369,23 @@ const Auth = () => {
                   <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Authenticating…</>
                 ) : aiState === 'success' ? (
                   <><CheckCircle2 className="w-4 h-4 mr-2" />Verified</>
+                ) : mode === 'signup' ? (
+                  <>Create Account <ArrowRight className="w-4 h-4 ml-2" /></>
                 ) : (
                   <>Enter Nexus <ArrowRight className="w-4 h-4 ml-2" /></>
                 )}
               </Button>
+
+              <div className="text-center text-xs text-slate-400">
+                {mode === 'signup' ? 'Already have an account?' : 'New here?'}{' '}
+                <button
+                  type="button"
+                  onClick={() => { setMode(mode === 'signup' ? 'signin' : 'signup'); setAiState('idle'); setErrors({}); }}
+                  className="text-cyan-300 hover:text-cyan-200"
+                >
+                  {mode === 'signup' ? 'Sign in' : 'Create an account'}
+                </button>
+              </div>
 
             </form>
 
