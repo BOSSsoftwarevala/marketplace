@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { useRealtimeSubscription } from '@/lib/realtime/channelFactory';
 
 type UserRoleRow = {
   id: string;
@@ -15,6 +16,8 @@ type UserRoleRow = {
   created_at: string;
   approved_at: string | null;
   force_logged_out_at: string | null;
+  full_name?: string | null;
+  email?: string | null;
 };
 
 type AuditRow = {
@@ -45,7 +48,7 @@ function useAuthControlData() {
         .from('user_roles')
         .select('id,user_id,role,approval_status,created_at,approved_at,force_logged_out_at')
         .order('created_at', { ascending: false })
-        .limit(50),
+        .limit(100),
       supabase
         .from('audit_logs')
         .select('id,action,module,role,timestamp,user_id')
@@ -56,7 +59,25 @@ function useAuthControlData() {
 
     if (roleResult.error) toast.error('Auth users could not be loaded');
     if (logResult.error) toast.error('Auth audit could not be loaded');
-    setRoles((roleResult.data || []) as UserRoleRow[]);
+
+    const roleRows = (roleResult.data || []) as UserRoleRow[];
+
+    // Attach real identity (name + email) from the profile created at signup
+    if (roleRows.length) {
+      const { data: profileRows } = await supabase
+        .from('profiles')
+        .select('user_id,full_name,email')
+        .in('user_id', roleRows.map((r) => r.user_id));
+
+      const byUser = new Map((profileRows || []).map((p: any) => [p.user_id, p]));
+      roleRows.forEach((r) => {
+        const p = byUser.get(r.user_id);
+        r.full_name = p?.full_name ?? null;
+        r.email = p?.email ?? null;
+      });
+    }
+
+    setRoles(roleRows);
     setLogs((logResult.data || []) as AuditRow[]);
     setLoading(false);
   };
@@ -64,6 +85,19 @@ function useAuthControlData() {
   useEffect(() => {
     void load();
   }, []);
+
+  // New signups appear here without a manual refresh
+  useRealtimeSubscription({
+    name: 'boss-auth-control',
+    configure: (channel) =>
+      channel
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'user_roles' }, () => {
+          void load();
+        })
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, () => {
+          void load();
+        }),
+  });
 
   return { roles, logs, loading, reload: load };
 }
@@ -167,11 +201,11 @@ export function AuthManagement() {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <UserCog className="h-4 w-4 text-blue-600" />
-                    <span className="font-medium text-slate-900">{row.user_id.slice(0, 8)}</span>
+                    <span className="font-medium text-slate-900">{row.full_name || row.email || row.user_id.slice(0, 8)}</span>
                     <Badge variant="outline">{row.role}</Badge>
                     {statusBadge(row.approval_status, row.force_logged_out_at)}
                   </div>
-                  <p className="mt-1 text-xs text-slate-500">Created {new Date(row.created_at).toLocaleString()}</p>
+                  <p className="mt-1 text-xs text-slate-500">{row.email ? `${row.email} · ` : ''}Created {new Date(row.created_at).toLocaleString()}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Button size="sm" onClick={() => updateRole(row, 'approved')} disabled={busyId === row.id}>Approve</Button>

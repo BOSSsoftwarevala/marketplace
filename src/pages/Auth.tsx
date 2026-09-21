@@ -101,10 +101,12 @@ const AIAvatar = ({ state, cursor }: { state: AIState; cursor: { x: number; y: n
 
 // ─── Page ───────────────────────────────────────────────────────────────────
 const Auth = () => {
-  const { signIn, user } = useAuth();
+  const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [fullName, setFullName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
@@ -170,8 +172,30 @@ const Auth = () => {
   const onSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     if (!validate()) { setAiState('error'); return; }
+    if (mode === 'signup' && fullName.trim().length < 2) {
+      setAiState('error');
+      toast.error('Please enter your full name');
+      return;
+    }
     setAiState('processing');
     try {
+      if (mode === 'signup') {
+        const { error } = await signUp(email, password, 'client', fullName.trim());
+        if (error) {
+          setAiState('error');
+          toast.error(error.message.includes('already registered')
+            ? 'This email already has an account. Sign in instead.'
+            : error.message);
+          return;
+        }
+        setAiState('success');
+        toast.success('Account created. Check your email to confirm, then sign in.');
+        setMode('signin');
+        setPassword('');
+        setAiState('idle');
+        return;
+      }
+
       const { error } = await signIn(email, password);
       if (error) {
         setAiState('error');
@@ -266,7 +290,7 @@ const Auth = () => {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-cyan-300">secure gateway</div>
-                <h1 className="text-2xl font-semibold mt-1">Authenticate</h1>
+                <h1 className="text-2xl font-semibold mt-1">{mode === 'signup' ? 'Create Account' : 'Authenticate'}</h1>
               </div>
               <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-300">
                 <ShieldCheck className="w-3.5 h-3.5" /> tls · argon2 · jwt
@@ -274,6 +298,19 @@ const Auth = () => {
             </div>
 
             <form ref={formRef} onSubmit={onSubmit} className="space-y-4">
+              {mode === 'signup' && (
+                <div>
+                  <label className="text-[11px] font-mono uppercase tracking-widest text-slate-400">Full Name</label>
+                  <div className="relative mt-1.5">
+                    <Input
+                      type="text" autoComplete="name" value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Your name"
+                      className="h-11 bg-black/40 border-white/10 focus-visible:ring-cyan-400/50 focus-visible:border-cyan-400/50 text-slate-100 placeholder:text-slate-600"
+                    />
+                  </div>
+                </div>
+              )}
               <div>
                 <label className="text-[11px] font-mono uppercase tracking-widest text-slate-400">Email / Mobile / Username</label>
                 <div className="relative mt-1.5">
@@ -332,10 +369,23 @@ const Auth = () => {
                   <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Authenticating…</>
                 ) : aiState === 'success' ? (
                   <><CheckCircle2 className="w-4 h-4 mr-2" />Verified</>
+                ) : mode === 'signup' ? (
+                  <>Create Account <ArrowRight className="w-4 h-4 ml-2" /></>
                 ) : (
                   <>Enter Nexus <ArrowRight className="w-4 h-4 ml-2" /></>
                 )}
               </Button>
+
+              <div className="text-center text-xs text-slate-400">
+                {mode === 'signup' ? 'Already have an account?' : 'New here?'}{' '}
+                <button
+                  type="button"
+                  onClick={() => { setMode(mode === 'signup' ? 'signin' : 'signup'); setAiState('idle'); setErrors({}); }}
+                  className="text-cyan-300 hover:text-cyan-200"
+                >
+                  {mode === 'signup' ? 'Sign in' : 'Create an account'}
+                </button>
+              </div>
 
             </form>
 
