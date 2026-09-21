@@ -411,17 +411,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     created_at: new Date().toISOString(),
   } as unknown as User;
 
+  // Guest browsing bypass only applies when NOBODY is really signed in.
+  // A real session always uses its real role, status and dashboard.
+  const bypassActive = AUTH_BYPASS && !user;
+
   return (
     <AuthContext.Provider value={{ 
-      user: AUTH_BYPASS ? (user ?? bypassUser) : user, 
+      user: bypassActive ? bypassUser : user, 
       session, 
-      loading: AUTH_BYPASS ? false : loading, 
-      userRole: AUTH_BYPASS ? ((userRole ?? 'boss_owner') as AppRole) : userRole, 
-      approvalStatus: AUTH_BYPASS ? 'approved' : approvalStatus,
-      isPrivileged: AUTH_BYPASS ? true : isPrivileged,
-      isBossOwner: AUTH_BYPASS ? true : isBossOwner,
-      isCEO: AUTH_BYPASS ? true : isCEO,
-      wasForceLoggedOut: AUTH_BYPASS ? false : wasForceLoggedOut,
+      loading: bypassActive ? false : loading, 
+      userRole: bypassActive ? ('boss_owner' as AppRole) : userRole, 
+      approvalStatus: bypassActive ? 'approved' : approvalStatus,
+      isPrivileged: bypassActive ? true : isPrivileged,
+      isBossOwner: bypassActive ? true : isBossOwner,
+      isCEO: bypassActive ? true : isCEO,
+      wasForceLoggedOut: bypassActive ? false : wasForceLoggedOut,
       signUp, 
       signIn,
       signOut,
