@@ -45,7 +45,7 @@ function useAuthControlData() {
         .from('user_roles')
         .select('id,user_id,role,approval_status,created_at,approved_at,force_logged_out_at')
         .order('created_at', { ascending: false })
-        .limit(50),
+        .limit(100),
       supabase
         .from('audit_logs')
         .select('id,action,module,role,timestamp,user_id')
@@ -56,7 +56,25 @@ function useAuthControlData() {
 
     if (roleResult.error) toast.error('Auth users could not be loaded');
     if (logResult.error) toast.error('Auth audit could not be loaded');
-    setRoles((roleResult.data || []) as UserRoleRow[]);
+
+    const roleRows = (roleResult.data || []) as UserRoleRow[];
+
+    // Attach real identity (name + email) from the profile created at signup
+    if (roleRows.length) {
+      const { data: profileRows } = await supabase
+        .from('profiles')
+        .select('user_id,full_name,email')
+        .in('user_id', roleRows.map((r) => r.user_id));
+
+      const byUser = new Map((profileRows || []).map((p: any) => [p.user_id, p]));
+      roleRows.forEach((r) => {
+        const p = byUser.get(r.user_id);
+        r.full_name = p?.full_name ?? null;
+        r.email = p?.email ?? null;
+      });
+    }
+
+    setRoles(roleRows);
     setLogs((logResult.data || []) as AuditRow[]);
     setLoading(false);
   };
@@ -64,6 +82,19 @@ function useAuthControlData() {
   useEffect(() => {
     void load();
   }, []);
+
+  // New signups appear here without a manual refresh
+  useRealtimeSubscription({
+    name: 'boss-auth-control',
+    configure: (channel, isMounted) =>
+      channel
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'user_roles' }, () => {
+          if (isMounted.current) void load();
+        })
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, () => {
+          if (isMounted.current) void load();
+        }),
+  });
 
   return { roles, logs, loading, reload: load };
 }
