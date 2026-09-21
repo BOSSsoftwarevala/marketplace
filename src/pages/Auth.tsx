@@ -101,7 +101,7 @@ const AIAvatar = ({ state, cursor }: { state: AIState; cursor: { x: number; y: n
 
 // ─── Page ───────────────────────────────────────────────────────────────────
 const Auth = () => {
-  const { signIn, user } = useAuth();
+  const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
