@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { useRealtimeSubscription } from '@/lib/realtime/channelFactory';
 
 type UserRoleRow = {
   id: string;
@@ -15,6 +16,8 @@ type UserRoleRow = {
   created_at: string;
   approved_at: string | null;
   force_logged_out_at: string | null;
+  full_name?: string | null;
+  email?: string | null;
 };
 
 type AuditRow = {
@@ -86,13 +89,13 @@ function useAuthControlData() {
   // New signups appear here without a manual refresh
   useRealtimeSubscription({
     name: 'boss-auth-control',
-    configure: (channel, isMounted) =>
+    configure: (channel) =>
       channel
         .on('postgres_changes', { event: '*', schema: 'public', table: 'user_roles' }, () => {
-          if (isMounted.current) void load();
+          void load();
         })
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, () => {
-          if (isMounted.current) void load();
+          void load();
         }),
   });
 
@@ -198,11 +201,11 @@ export function AuthManagement() {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <UserCog className="h-4 w-4 text-blue-600" />
-                    <span className="font-medium text-slate-900">{row.user_id.slice(0, 8)}</span>
+                    <span className="font-medium text-slate-900">{row.full_name || row.email || row.user_id.slice(0, 8)}</span>
                     <Badge variant="outline">{row.role}</Badge>
                     {statusBadge(row.approval_status, row.force_logged_out_at)}
                   </div>
-                  <p className="mt-1 text-xs text-slate-500">Created {new Date(row.created_at).toLocaleString()}</p>
+                  <p className="mt-1 text-xs text-slate-500">{row.email ? `${row.email} · ` : ''}Created {new Date(row.created_at).toLocaleString()}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Button size="sm" onClick={() => updateRole(row, 'approved')} disabled={busyId === row.id}>Approve</Button>
