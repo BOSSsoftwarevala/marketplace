@@ -298,6 +298,19 @@ const Auth = () => {
             </div>
 
             <form ref={formRef} onSubmit={onSubmit} className="space-y-4">
+              {mode === 'signup' && (
+                <div>
+                  <label className="text-[11px] font-mono uppercase tracking-widest text-slate-400">Full Name</label>
+                  <div className="relative mt-1.5">
+                    <Input
+                      type="text" autoComplete="name" value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Your name"
+                      className="h-11 bg-black/40 border-white/10 focus-visible:ring-cyan-400/50 focus-visible:border-cyan-400/50 text-slate-100 placeholder:text-slate-600"
+                    />
+                  </div>
+                </div>
+              )}
               <div>
                 <label className="text-[11px] font-mono uppercase tracking-widest text-slate-400">Email / Mobile / Username</label>
                 <div className="relative mt-1.5">
