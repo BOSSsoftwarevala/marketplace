@@ -290,7 +290,7 @@ const Auth = () => {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-cyan-300">secure gateway</div>
-                <h1 className="text-2xl font-semibold mt-1">Authenticate</h1>
+                <h1 className="text-2xl font-semibold mt-1">{mode === 'signup' ? 'Create Account' : 'Authenticate'}</h1>
               </div>
               <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-300">
                 <ShieldCheck className="w-3.5 h-3.5" /> tls · argon2 · jwt
