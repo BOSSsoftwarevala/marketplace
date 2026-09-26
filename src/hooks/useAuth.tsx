@@ -30,7 +30,9 @@ interface AuthContextType {
   forceLogoutUser: (targetUserId: string) => Promise<{ error: Error | null }>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Keep one context instance across hot reloads so provider and consumers never mismatch.
+const g = globalThis as unknown as { __appAuthContext?: React.Context<AuthContextType | undefined> };
+const AuthContext = g.__appAuthContext ?? (g.__appAuthContext = createContext<AuthContextType | undefined>(undefined));
 
 // Emergency safety: never let login hang forever due to network/RPC stalls.
 function withTimeout<T>(promiseLike: PromiseLike<T>, ms: number, label: string): Promise<T> {
