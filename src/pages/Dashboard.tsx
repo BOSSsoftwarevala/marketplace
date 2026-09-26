@@ -117,6 +117,22 @@ const Dashboard = () => {
 
     setStatus('checking');
 
+    // Real accounts (not the testing bypass user) must verify their email first
+    const isBypassUser = user.id === '00000000-0000-0000-0000-000000000000';
+    if (!isBypassUser && !user.email_confirmed_at) {
+      hasNavigated.current = true;
+      navigate('/verify-email', { replace: true });
+      return;
+    }
+
+    // First login: complete role-specific profile before dashboard
+    if (!isBypassUser && userRole && approvalStatus === 'approved' && !isBossOwner && !isCEO
+        && !user.user_metadata?.onboarding_complete) {
+      hasNavigated.current = true;
+      navigate('/onboarding', { replace: true });
+      return;
+    }
+
     // If no role assigned yet, wait briefly then redirect to pending
     if (!userRole) {
       const timeoutId = setTimeout(() => {

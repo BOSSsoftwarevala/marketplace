@@ -17,6 +17,8 @@ import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
 import Settings from "@/pages/Settings";
 import Dashboard from "@/pages/Dashboard";
+import VerifyEmail from "@/pages/VerifyEmail";
+import Onboarding from "@/pages/Onboarding";
 import SystemSettings from "@/pages/SystemSettings";
 
 // Auth flows
@@ -145,6 +147,8 @@ function App() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/change-password" element={<ChangePassword />} />
                 <Route path="/pending-approval" element={<PendingApproval />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
+                <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/account-suspension" element={<AccountSuspension />} />
                 <Route path="/access-denied" element={<AccessDenied />} />
 

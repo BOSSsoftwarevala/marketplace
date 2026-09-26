@@ -190,15 +190,18 @@ const Auth = () => {
         }
         setAiState('success');
         toast.success('Account created. Check your email to confirm, then sign in.');
-        setMode('signin');
-        setPassword('');
-        setAiState('idle');
+        navigate(`/verify-email?email=${encodeURIComponent(email)}`);
         return;
       }
 
       const { error } = await signIn(email, password);
       if (error) {
         setAiState('error');
+        if (/not confirmed/i.test(error.message)) {
+          toast.error('Please verify your email first.');
+          navigate(`/verify-email?email=${encodeURIComponent(email)}`);
+          return;
+        }
         toast.error(error.message.includes('Invalid') ? 'Invalid email or password' : error.message);
       } else {
         setAiState('success');
